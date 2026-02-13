@@ -46,6 +46,8 @@ const consultForm = [
   { label: "Message", placeholder: "What do you need?" },
 ];
 
+import Image from "next/image";
+
 export default function Home() {
   return (
     <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
@@ -58,6 +60,19 @@ export default function Home() {
           </div>
           <div className="grid gap-10 lg:grid-cols-[3fr,2fr] lg:items-end">
             <div className="space-y-6">
+              <div className="inline-flex items-center gap-4 rounded-2xl border border-white/10 bg-black/30 px-4 py-2">
+                <Image
+                  src="/sanz-logo-1.png"
+                  alt="Sanz Solutions logo"
+                  width={48}
+                  height={48}
+                  priority
+                />
+                <div>
+                  <p className="text-xs uppercase tracking-[0.4em] text-white/50">Sanz Solutions</p>
+                  <p className="text-sm text-white/80">Concierge pharmacy</p>
+                </div>
+              </div>
               <h1 className="text-4xl font-semibold leading-tight text-white sm:text-5xl lg:text-6xl">
                 Clinical signal, minus the noise.
               </h1>
