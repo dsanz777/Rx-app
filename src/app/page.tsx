@@ -62,11 +62,12 @@ export default function Home() {
             <div className="space-y-6">
               <div className="inline-flex items-center gap-4 rounded-2xl border border-white/10 bg-black/30 px-4 py-2">
                 <Image
-                  src="/sanz-logo-1.png"
+                  src="/sanz-logo-hero.png"
                   alt="Sanz Solutions logo"
-                  width={48}
-                  height={48}
+                  width={64}
+                  height={64}
                   priority
+                  className="rounded-lg"
                 />
                 <div>
                   <p className="text-xs uppercase tracking-[0.4em] text-white/50">Sanz Solutions</p>
