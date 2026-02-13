@@ -15,21 +15,35 @@ const featureCards = [
 
 const intel = [
   {
-    label: "Weather",
-    detail: "Odessa, FL · Clear · 65°F",
-  },
-  {
-    label: "Policy",
-    detail: "DHS funding stall → immigration reforms back at center stage.",
-  },
-  {
     label: "Pharma",
     detail: "RGX-121 gene therapy decision window opens this week.",
   },
   {
-    label: "Market",
-    detail: "S&P futures −0.4% pre-open; defensive healthcare bid holding.",
+    label: "ACO",
+    detail: "ACO REACH guardrails are tightening—draft recap ready for review.",
   },
+];
+
+const educationQueue = [
+  {
+    title: "GLP-1 playbook",
+    status: "Draft · needs Derek review",
+  },
+  {
+    title: "ACO REACH survival kit",
+    status: "Outline complete · waiting on payer quotes",
+  },
+  {
+    title: "Hospital at Home FAQ",
+    status: "Research phase",
+  },
+];
+
+const consultForm = [
+  { label: "Name", placeholder: "Full name" },
+  { label: "Email", placeholder: "contact@domain.com" },
+  { label: "Topic", placeholder: "GLP-1 consult / FFS→VBC" },
+  { label: "Message", placeholder: "What do you need?" },
 ];
 
 export default function Home() {
@@ -48,7 +62,7 @@ export default function Home() {
                 Clinical signal, minus the noise.
               </h1>
               <p className="text-lg text-white/70 sm:text-xl">
-                Daily weather, pharma intel, payer chatter, and the exact talking points Derek needs for Wellvana calls—now wrapped in a product you can actually share.
+                Daily pharmacy intel, ACO strategy notes, and the exact talking points Derek needs—wrapped in a product you can actually share.
               </p>
               <div className="flex flex-wrap gap-3 text-sm">
                 <button className="rounded-full bg-[var(--accent)] px-5 py-3 font-medium text-black shadow-[0_0_50px_rgba(208,255,61,0.35)] transition hover:opacity-90">
@@ -136,38 +150,47 @@ export default function Home() {
             <div className="mt-4 h-48 rounded-2xl border border-white/10 bg-black/30 p-4 text-sm text-white/70">
               <p className="text-white/50">You</p>
               <p>
-                Draft a one-liner for the DHS shutdown risk + how it ties to ACO
-                budgets.
+                Draft a one-liner for the DHS shutdown risk + how it ties to ACO budgets.
               </p>
               <p className="mt-4 text-white/50">Rx Chat</p>
               <p>
-                Sure thing—here’s the pull quote tying DHS ops to payer flight
-                risk...
+                Sure thing—here’s the pull quote tying DHS ops to payer flight risk...
               </p>
             </div>
           </div>
-          <div className="space-y-4 rounded-3xl border border-white/5 bg-white/5 p-6">
-            <p className="text-xs uppercase tracking-[0.4em] text-white/50">
-              Education hub · queue
-            </p>
-            <div className="space-y-3 text-sm">
-              {["GLP-1 playbook", "ACO REACH survival kit", "Hospital at Home FAQ"].map(
-                (title) => (
-                  <div key={title} className="rounded-2xl border border-white/10 p-4">
-                    <p className="font-medium text-white">{title}</p>
-                    <p className="text-white/50">Draft · needs Derek review</p>
-                  </div>
-                ),
-              )}
+          <div className="rounded-3xl border border-white/5 bg-white/5 p-6">
+            <div className="flex items-center justify-between">
+              <p className="text-xs uppercase tracking-[0.4em] text-white/50">Consult form</p>
+              <p className="text-[10px] uppercase text-white/30">Ask Derek</p>
             </div>
-            <button className="w-full rounded-full border border-white/20 py-3 text-sm font-medium text-white/80">
-              Upload study notes
+            <div className="mt-4 grid gap-3 text-sm">
+              {consultForm.map((field) => (
+                <div key={field.label} className="rounded-2xl border border-white/10 px-4 py-3">
+                  <p className="text-xs uppercase tracking-wide text-white/40">{field.label}</p>
+                  <p className="mt-1 text-base text-white/80">{field.placeholder}</p>
+                </div>
+              ))}
+            </div>
+            <button className="mt-4 w-full rounded-full border border-white/20 py-3 text-sm font-medium text-white/80">
+              Send request
             </button>
           </div>
         </section>
 
+        <section className="rounded-3xl border border-white/5 bg-white/5 p-6">
+          <p className="text-xs uppercase tracking-[0.4em] text-white/50">Education hub</p>
+          <div className="mt-4 grid gap-4 sm:grid-cols-3">
+            {educationQueue.map((item) => (
+              <div key={item.title} className="rounded-2xl border border-white/10 p-4">
+                <p className="font-medium text-white">{item.title}</p>
+                <p className="text-sm text-white/50">{item.status}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
         <footer className="rounded-3xl border border-white/10 bg-black/50 p-6 text-sm text-white/60">
-          <p>© {new Date().getFullYear()} Sanz Solutions · Derek Sanz.</p>
+          <p>© {new Date().getFullYear()} Derek Sanz.</p>
           <p className="mt-1">Concierge pharmacy + daily brief for value-based operators.</p>
         </footer>
       </div>
