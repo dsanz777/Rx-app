@@ -15,8 +15,8 @@ npm run dev
 App runs on http://localhost:3000.
 
 ## Next up
+- Pipe Brave Search headlines into the hero snapshot
 - Hook hero CTAs to actual brief + calendaring flows
-- Wire medication lookup + interaction data from JSON / API
 - Connect AI chat pane to OpenAI with guardrails
 - Flesh out education hub content + provider forms
 ```

@@ -47,6 +47,7 @@ const consultForm = [
 ];
 
 import Image from "next/image";
+import { MedicationLookup } from "@/components/medication-lookup";
 
 export default function Home() {
   return (
@@ -124,22 +125,7 @@ export default function Home() {
         </section>
 
         <section className="grid gap-8 lg:grid-cols-[2fr,1fr]">
-          <div className="rounded-3xl border border-white/5 bg-white/5 p-6">
-            <div className="flex items-center justify-between text-xs uppercase tracking-[0.4em] text-white/50">
-              <span>Medication lookup</span>
-              <span>Sandbox</span>
-            </div>
-            <div className="mt-6 grid gap-4 sm:grid-cols-2">
-              {["Name", "Dose", "Renal", "Monitoring"].map((label) => (
-                <div key={label} className="rounded-2xl border border-white/10 p-4">
-                  <p className="text-xs uppercase tracking-wide text-white/40">
-                    {label}
-                  </p>
-                  <p className="mt-1 text-base text-white/90">placeholder</p>
-                </div>
-              ))}
-            </div>
-          </div>
+          <MedicationLookup />
           <div className="rounded-3xl border border-white/5 bg-black/30 p-6">
             <p className="text-xs uppercase tracking-[0.4em] text-white/50">
               Interaction flags
