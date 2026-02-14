@@ -1,3 +1,5 @@
+import generatedRaw from "./medications.generated.json";
+
 export type MedicationRecord = {
   slug: string;
   name: string;
@@ -11,7 +13,7 @@ export type MedicationRecord = {
   keywords: string[];
 };
 
-export const medicationDataset: MedicationRecord[] = [
+const curatedRecords: MedicationRecord[] = [
   {
     slug: "semaglutide",
     name: "Semaglutide (Ozempic/Wegovy)",
@@ -48,7 +50,7 @@ export const medicationDataset: MedicationRecord[] = [
       "Expect >20% weight loss at 15 mg with adherence—prep patients for plateau management.",
     ],
     tags: ["GLP-1", "Cardiometabolic", "Obesity"],
-    keywords: ["tirzepatide", "mounjaro", "zepbound", "dual incretin"],
+    keywords: ["tirzepatide", "mounjaro", "zepbound", "dual", "incretin"],
   },
   {
     slug: "empagliflozin",
@@ -164,6 +166,23 @@ export const medicationDataset: MedicationRecord[] = [
     keywords: ["linezolid", "zyvox", "mrsa", "vre", "antibiotic"],
   },
 ];
+
+const generatedRecords: MedicationRecord[] = (generatedRaw as MedicationRecord[]).map((item) => ({
+  ...item,
+  pearls: item.pearls ?? [],
+  tags: item.tags ?? [],
+  keywords: item.keywords ?? [],
+}));
+
+const mergedBySlug = new Map<string, MedicationRecord>();
+for (const autoRecord of generatedRecords) {
+  mergedBySlug.set(autoRecord.slug, autoRecord);
+}
+for (const curated of curatedRecords) {
+  mergedBySlug.set(curated.slug, curated);
+}
+
+export const medicationDataset: MedicationRecord[] = Array.from(mergedBySlug.values());
 
 export const medicationTags = Array.from(
   new Set(medicationDataset.flatMap((item) => item.tags))
