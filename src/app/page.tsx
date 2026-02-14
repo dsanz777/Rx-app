@@ -2,6 +2,7 @@ import Image from "next/image";
 import { MedicationLookup } from "@/components/medication-lookup";
 import { AiPharmacistChat } from "@/components/ai-pharmacist-chat";
 import { ConsultForm } from "@/components/consult-form";
+import { InteractionFlags } from "@/components/interaction-flags";
 import { getHeroIntel } from "@/lib/brave";
 
 const featureCards = [
@@ -154,20 +155,7 @@ export default async function Home() {
 
         <section id="medication-lookup" className="grid gap-8 lg:grid-cols-[2fr,1fr]">
           <MedicationLookup />
-          <div
-            id="interaction-radar"
-            className="rounded-3xl border border-white/5 bg-black/30 p-6"
-          >
-            <p className="text-xs uppercase tracking-[0.4em] text-white/50">Interaction flags</p>
-            <div className="mt-4 space-y-3">
-              {["Warfarin", "Semaglutide", "Linezolid"].map((drug) => (
-                <div key={drug} className="rounded-2xl border border-red-400/20 bg-red-400/10 p-4">
-                  <p className="text-sm font-semibold text-white">{drug}</p>
-                  <p className="text-xs text-red-200">High-risk · needs pharmacist clearance</p>
-                </div>
-              ))}
-            </div>
-          </div>
+          <InteractionFlags />
         </section>
 
         <section className="grid gap-6 lg:grid-cols-2">
