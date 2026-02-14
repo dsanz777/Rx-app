@@ -9,7 +9,37 @@ type InteractionResult = {
   drugs?: string[];
 };
 
-const medicationNames = medicationDataset.map((item) => item.name);
+type ApiResponse = {
+  interactions: InteractionResult[];
+};
+
+type ApiError = {
+  error?: string;
+};
+
+const suggestionNames = (() => {
+  const tokens = new Set<string>();
+
+  medicationDataset.forEach((item) => {
+    const base = item.name.replace(/\(.*?\)/g, "").trim();
+    tokens.add(item.name);
+    if (base && base !== item.name) tokens.add(base);
+
+    const slugName = item.slug.replace(/-/g, " ");
+    tokens.add(slugName);
+
+    const parenMatches = item.name.match(/\(([^)]+)\)/);
+    if (parenMatches) {
+      parenMatches[1]
+        .split(/[\/,&]|\band\b/i)
+        .map((token) => token.replace(/[+]/g, "+").trim())
+        .filter(Boolean)
+        .forEach((token) => tokens.add(token));
+    }
+  });
+
+  return Array.from(tokens).filter(Boolean);
+})();
 
 export function InteractionFlags() {
   const [query, setQuery] = useState("");
@@ -21,7 +51,7 @@ export function InteractionFlags() {
   const suggestions = useMemo(() => {
     if (!query.trim()) return [];
     const normalized = query.toLowerCase();
-    return medicationNames
+    return suggestionNames
       .filter((name) => name.toLowerCase().includes(normalized))
       .slice(0, 8);
   }, [query]);
@@ -56,17 +86,15 @@ export function InteractionFlags() {
       const response = await fetch("/api/interactions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          drugs: selected,
-        }),
+        body: JSON.stringify({ drugs: selected }),
       });
 
       if (!response.ok) {
-        const data = (await response.json()) as { error?: string };
+        const data = (await response.json()) as ApiError;
         throw new Error(data.error ?? "Interaction check failed");
       }
 
-      const data = (await response.json()) as { interactions: InteractionResult[] };
+      const data = (await response.json()) as ApiResponse;
       setResults(data.interactions ?? []);
       setStatus("idle");
     } catch (err) {
