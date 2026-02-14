@@ -8,14 +8,17 @@ const featureCards = [
   {
     title: "Medication Lookup",
     body: "Structured cards for dosing, renal adjustments, monitoring, and patient pearls.",
+    href: "#medication-lookup",
   },
   {
     title: "Interaction Radar",
     body: "Surface the top interaction flags instantly with a severity badge and action plan.",
+    href: "#interaction-radar",
   },
   {
     title: "AI Pharmacist",
     body: "Chat with the brief’s brain—every response tagged with source + safety disclaimers.",
+    href: "#ai-pharmacist",
   },
 ];
 
@@ -93,6 +96,19 @@ export default async function Home() {
                   Schedule a Consult
                 </button>
               </div>
+              <div className="grid gap-4 lg:grid-cols-3">
+                {featureCards.map((card) => (
+                  <a
+                    key={card.title}
+                    href={card.href}
+                    className="rounded-3xl border border-white/5 bg-gradient-to-b from-white/5 to-white/0 p-6 transition hover:border-[var(--accent)]/60"
+                  >
+                    <p className="text-xs uppercase tracking-[0.3em] text-[var(--accent)]">Module</p>
+                    <h2 className="mt-3 text-2xl font-semibold text-white">{card.title}</h2>
+                    <p className="mt-3 text-sm text-white/70">{card.body}</p>
+                  </a>
+                ))}
+              </div>
             </div>
             <div className="rounded-3xl border border-white/5 bg-white/5 p-6 shadow-[0_20px_120px_rgba(5,5,5,0.75)]">
               <p className="text-sm uppercase tracking-widest text-white/50">Snapshot · {heroIntel.generatedAt}</p>
@@ -128,27 +144,13 @@ export default async function Home() {
           </div>
         </header>
 
-        <section className="grid gap-6 lg:grid-cols-3">
-          {featureCards.map((card) => (
-            <article
-              key={card.title}
-              className="rounded-3xl border border-white/5 bg-gradient-to-b from-white/5 to-white/0 p-6"
-            >
-              <p className="text-xs uppercase tracking-[0.3em] text-[var(--accent)]">
-                Module
-              </p>
-              <h2 className="mt-3 text-2xl font-semibold text-white">{card.title}</h2>
-              <p className="mt-3 text-sm text-white/70">{card.body}</p>
-            </article>
-          ))}
-        </section>
-
-        <section className="grid gap-8 lg:grid-cols-[2fr,1fr]">
+        <section id="medication-lookup" className="grid gap-8 lg:grid-cols-[2fr,1fr]">
           <MedicationLookup />
-          <div className="rounded-3xl border border-white/5 bg-black/30 p-6">
-            <p className="text-xs uppercase tracking-[0.4em] text-white/50">
-              Interaction flags
-            </p>
+          <div
+            id="interaction-radar"
+            className="rounded-3xl border border-white/5 bg-black/30 p-6"
+          >
+            <p className="text-xs uppercase tracking-[0.4em] text-white/50">Interaction flags</p>
             <div className="mt-4 space-y-3">
               {["Warfarin", "Semaglutide", "Linezolid"].map((drug) => (
                 <div key={drug} className="rounded-2xl border border-red-400/20 bg-red-400/10 p-4">
@@ -161,7 +163,9 @@ export default async function Home() {
         </section>
 
         <section className="grid gap-6 lg:grid-cols-2">
-          <AiPharmacistChat />
+          <div id="ai-pharmacist">
+            <AiPharmacistChat />
+          </div>
           <ConsultForm />
         </section>
 
