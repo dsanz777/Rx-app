@@ -89,12 +89,18 @@ export default async function Home() {
                 Daily pharmacy intel, ACO strategy notes, medication insights — wrapped in a product you can actually share.
               </p>
               <div className="flex flex-wrap gap-3 text-sm">
-                <button className="rounded-full bg-[var(--accent)] px-5 py-3 font-medium text-black shadow-[0_0_50px_rgba(208,255,61,0.35)] transition hover:opacity-90">
+                <a
+                  href="#medication-lookup"
+                  className="rounded-full bg-[var(--accent)] px-5 py-3 font-medium text-black shadow-[0_0_50px_rgba(208,255,61,0.35)] transition hover:opacity-90"
+                >
                   View Today’s Brief
-                </button>
-                <button className="rounded-full border border-white/20 px-5 py-3 font-medium text-white/80 transition hover:text-white">
+                </a>
+                <a
+                  href="#consult"
+                  className="rounded-full border border-white/20 px-5 py-3 font-medium text-white/80 transition hover:text-white"
+                >
                   Schedule a Consult
-                </button>
+                </a>
               </div>
               <div className="grid gap-4 lg:grid-cols-3">
                 {featureCards.map((card) => (
@@ -103,8 +109,7 @@ export default async function Home() {
                     href={card.href}
                     className="rounded-3xl border border-white/5 bg-gradient-to-b from-white/5 to-white/0 p-6 transition hover:border-[var(--accent)]/60"
                   >
-                    <p className="text-xs uppercase tracking-[0.3em] text-[var(--accent)]">Module</p>
-                    <h2 className="mt-3 text-2xl font-semibold text-white">{card.title}</h2>
+                    <h2 className="text-2xl font-semibold text-white">{card.title}</h2>
                     <p className="mt-3 text-sm text-white/70">{card.body}</p>
                   </a>
                 ))}
@@ -166,7 +171,9 @@ export default async function Home() {
           <div id="ai-pharmacist">
             <AiPharmacistChat />
           </div>
-          <ConsultForm />
+          <div id="consult">
+            <ConsultForm />
+          </div>
         </section>
 
         <section className="rounded-3xl border border-white/5 bg-white/5 p-6">
