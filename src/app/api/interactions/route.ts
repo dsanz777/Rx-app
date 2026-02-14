@@ -37,11 +37,13 @@ type InteractionResponse = {
 };
 
 async function fetchRxcui(drugName: string): Promise<string | null> {
-  const url = `https://rxnav.nlm.nih.gov/REST/rxcui.json?name=${encodeURIComponent(drugName)}&search=1`;
+  const url = `https://rxnav.nlm.nih.gov/REST/rxcui.json?name=${encodeURIComponent(drugName)}&search=2`;
   const response = await fetch(url, { cache: "no-store" });
   if (!response.ok) return null;
   const data = (await response.json()) as RxCuiResponse;
-  return data.idGroup?.rxnormId?.[0] ?? null;
+  const ids = data.idGroup?.rxnormId ?? [];
+  if (ids.length === 0) return null;
+  return ids[0];
 }
 
 function extractInteractionPairs(payload: InteractionResponse): InteractionPair[] {
