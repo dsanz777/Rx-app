@@ -15,8 +15,10 @@ npm run dev
 App runs on http://localhost:3000.
 
 ## Next up
-- Pipe Brave Search headlines into the hero snapshot
 - Hook hero CTAs to actual brief + calendaring flows
 - Connect AI chat pane to OpenAI with guardrails
 - Flesh out education hub content + provider forms
+
+## Brave Search headlines
+Set `BRAVE_API_KEY` in your environment (e.g., `.env.local`) with a valid Brave Search API token. Without it the hero snapshot falls back to canned headlines, but real deployments should provide a key so the snapshot refreshes every 30 minutes with live pharma + ACO pulls.
 ```

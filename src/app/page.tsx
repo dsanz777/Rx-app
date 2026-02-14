@@ -1,3 +1,7 @@
+import Image from "next/image";
+import { MedicationLookup } from "@/components/medication-lookup";
+import { getHeroIntel } from "@/lib/brave";
+
 const featureCards = [
   {
     title: "Medication Lookup",
@@ -10,17 +14,6 @@ const featureCards = [
   {
     title: "AI Pharmacist",
     body: "Chat with the brief’s brain—every response tagged with source + safety disclaimers.",
-  },
-];
-
-const intel = [
-  {
-    label: "Pharma",
-    detail: "RGX-121 gene therapy decision window opens this week.",
-  },
-  {
-    label: "ACO",
-    detail: "ACO REACH guardrails are tightening—draft recap ready for review.",
   },
 ];
 
@@ -46,10 +39,26 @@ const consultForm = [
   { label: "Message", placeholder: "What do you need?" },
 ];
 
-import Image from "next/image";
-import { MedicationLookup } from "@/components/medication-lookup";
+function formatRelativeTime(dateInput?: string) {
+  if (!dateInput) return "Updated now";
+  const parsed = Date.parse(dateInput);
+  if (Number.isNaN(parsed)) return "Updated today";
 
-export default function Home() {
+  const diffMinutes = Math.max(1, Math.round((Date.now() - parsed) / (1000 * 60)));
+  if (diffMinutes < 60) {
+    return `${diffMinutes}m ago`;
+  }
+  const diffHours = Math.round(diffMinutes / 60);
+  if (diffHours < 24) {
+    return `${diffHours}h ago`;
+  }
+  const diffDays = Math.round(diffHours / 24);
+  return `${diffDays}d ago`;
+}
+
+export default async function Home() {
+  const heroIntel = await getHeroIntel();
+
   return (
     <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
       <div className="mx-auto flex max-w-6xl flex-col gap-16 px-6 py-16 lg:gap-24">
@@ -91,17 +100,32 @@ export default function Home() {
               </div>
             </div>
             <div className="rounded-3xl border border-white/5 bg-white/5 p-6 shadow-[0_20px_120px_rgba(5,5,5,0.75)]">
-              <p className="text-sm uppercase tracking-widest text-white/50">Snapshot · Feb 13</p>
+              <p className="text-sm uppercase tracking-widest text-white/50">Snapshot · {heroIntel.generatedAt}</p>
               <div className="mt-4 space-y-4 text-sm">
-                {intel.map((item) => (
+                {heroIntel.sections.map((section) => (
                   <div
-                    key={item.label}
+                    key={section.label}
                     className="rounded-2xl border border-white/5 bg-black/30 p-4"
                   >
                     <p className="text-xs uppercase tracking-wide text-white/40">
-                      {item.label}
+                      {section.label}
                     </p>
-                    <p className="mt-1 text-base text-white/90">{item.detail}</p>
+                    <div className="mt-3 space-y-3">
+                      {section.headlines.map((headline) => (
+                        <a
+                          key={`${section.label}-${headline.title}`}
+                          href={headline.url}
+                          target="_blank"
+                          rel="noreferrer noopener"
+                          className="block rounded-xl border border-white/5 bg-white/5 px-3 py-2 transition hover:border-[var(--accent)]/50"
+                        >
+                          <p className="text-base text-white/90">{headline.title}</p>
+                          <p className="text-xs text-white/50">
+                            {headline.source} · {formatRelativeTime(headline.publishedAt)}
+                          </p>
+                        </a>
+                      ))}
+                    </div>
                   </div>
                 ))}
               </div>
