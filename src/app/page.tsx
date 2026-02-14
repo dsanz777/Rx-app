@@ -88,7 +88,7 @@ export default async function Home() {
                 Clinical signal, minus the noise.
               </h1>
               <p className="text-lg text-white/70 sm:text-xl">
-                Daily pharmacy intel, ACO strategy notes, and the exact talking points Derek needs—wrapped in a product you can actually share.
+                Daily pharmacy intel, ACO strategy notes, medication insights — wrapped in a product you can actually share.
               </p>
               <div className="flex flex-wrap gap-3 text-sm">
                 <button className="rounded-full bg-[var(--accent)] px-5 py-3 font-medium text-black shadow-[0_0_50px_rgba(208,255,61,0.35)] transition hover:opacity-90">

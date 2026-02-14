@@ -34,19 +34,23 @@ export function MedicationLookup() {
   const [selectedSlug, setSelectedSlug] = useState<string>(medicationDataset[0]?.slug ?? "");
 
   const filteredRecords = useMemo(() => filterRecords(query), [query]);
+  const sortedRecords = useMemo(
+    () => [...filteredRecords].sort((a, b) => a.name.localeCompare(b.name)),
+    [filteredRecords],
+  );
 
   const activeSlug = useMemo(() => {
-    const hasSelected = filteredRecords.some((item) => item.slug === selectedSlug);
+    const hasSelected = sortedRecords.some((item) => item.slug === selectedSlug);
     if (hasSelected) return selectedSlug;
-    return filteredRecords[0]?.slug ?? medicationDataset[0]?.slug ?? "";
-  }, [filteredRecords, selectedSlug]);
+    return sortedRecords[0]?.slug ?? medicationDataset[0]?.slug ?? "";
+  }, [sortedRecords, selectedSlug]);
 
   const activeMedication: MedicationRecord | undefined =
-    filteredRecords.find((item) => item.slug === activeSlug) ??
-    filteredRecords[0] ??
+    sortedRecords.find((item) => item.slug === activeSlug) ??
+    sortedRecords[0] ??
     medicationDataset[0];
 
-  const hasResults = filteredRecords.length > 0;
+  const hasResults = sortedRecords.length > 0;
 
   return (
     <div className="rounded-3xl border border-white/5 bg-white/5 p-6">
@@ -74,7 +78,7 @@ export function MedicationLookup() {
             onChange={(event) => setSelectedSlug(event.target.value)}
             className="w-full rounded-2xl border border-white/15 bg-black/40 px-4 py-3 text-base font-medium normal-case tracking-normal text-white focus:border-[var(--accent)] focus:outline-none"
           >
-            {filteredRecords.map((item) => (
+            {sortedRecords.map((item) => (
               <option key={item.slug} value={item.slug} className="text-black">
                 {item.name}
               </option>
@@ -84,7 +88,7 @@ export function MedicationLookup() {
       </div>
 
       <div className="mt-4 text-xs uppercase tracking-[0.35em] text-white/40">
-        {filteredRecords.length} result{filteredRecords.length === 1 ? "" : "s"}
+        {sortedRecords.length} result{sortedRecords.length === 1 ? "" : "s"}
       </div>
 
       {!hasResults ? (
