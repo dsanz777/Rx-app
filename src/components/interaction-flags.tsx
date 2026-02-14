@@ -3,6 +3,12 @@
 import { FormEvent, useMemo, useState } from "react";
 import { medicationDataset } from "@/data/medications";
 
+type InteractionResult = {
+  severity: string;
+  description: string;
+  drugs?: string[];
+};
+
 const medicationNames = medicationDataset.map((item) => item.name);
 
 export function InteractionFlags() {
