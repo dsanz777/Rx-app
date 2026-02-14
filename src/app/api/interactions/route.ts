@@ -73,8 +73,11 @@ function extractInteractionPairs(payload: InteractionResponse): InteractionPair[
 
 export async function POST(request: Request) {
   try {
-    const body = (await request.json()) as { drugs?: string[] };
-    const inputDrugs = Array.from(new Set((body.drugs ?? []).map((d) => d.trim()).filter(Boolean)));
+    const body = (await request.json()) as { drugs?: string[]; rxcuis?: string[] };
+    const inputDrugs =
+      body.rxcuis && body.rxcuis.length === body.drugs?.length
+        ? (body.drugs ?? [])
+        : Array.from(new Set((body.drugs ?? []).map((d) => d.trim()).filter(Boolean)));
 
     if (inputDrugs.length < 2) {
       return NextResponse.json(
@@ -83,7 +86,9 @@ export async function POST(request: Request) {
       );
     }
 
-    const rxcuis = await Promise.all(inputDrugs.map((drug) => fetchRxcui(drug)));
+    const rxcuis = body.rxcuis && body.rxcuis.length === inputDrugs.length
+      ? body.rxcuis
+      : await Promise.all(inputDrugs.map((drug) => fetchRxcui(drug)));
     const validRxcuis = rxcuis.filter((id): id is string => Boolean(id));
 
     if (validRxcuis.length < 2) {

@@ -2,6 +2,7 @@
 
 import { FormEvent, useMemo, useState } from "react";
 import { medicationDataset } from "@/data/medications";
+import { lookupRxCui } from "@/lib/rxnorm";
 
 type InteractionResult = {
   severity: string;
@@ -9,39 +10,57 @@ type InteractionResult = {
   drugs: string[];
 };
 
+type ResolvedDrug = {
+  input: string;
+  name: string;
+  rxcui: string | null;
+};
+
 const medicationNames = medicationDataset.map((item) => item.name);
 
 export function InteractionFlags() {
   const [query, setQuery] = useState("");
-  const [selected, setSelected] = useState<string[]>([]);
+  const [selected, setSelected] = useState<ResolvedDrug[]>([]);
   const [results, setResults] = useState<InteractionResult[] | null>(null);
   const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
 
   const suggestions = useMemo(() => {
     if (!query.trim()) return [];
+    const normalized = query.toLowerCase();
     return medicationNames
-      .filter((name) => name.toLowerCase().includes(query.toLowerCase()))
+      .filter((name) => name.toLowerCase().includes(normalized))
       .slice(0, 8);
   }, [query]);
 
-  const addMedication = (name: string) => {
-    if (!name.trim()) return;
-    if (selected.some((item) => item.toLowerCase() === name.toLowerCase())) {
+  const addMedication = async (name: string) => {
+    const trimmed = name.trim();
+    if (!trimmed) return;
+
+    const exists = selected.some((item) => item.name.toLowerCase() === trimmed.toLowerCase());
+    if (exists) {
       setQuery("");
       return;
     }
-    setSelected((prev) => [...prev, name.trim()]);
+
+    const resolved = await lookupRxCui(trimmed);
+    setSelected((prev) => [...prev, { input: trimmed, ...resolved }]);
     setQuery("");
   };
 
   const removeMedication = (name: string) => {
-    setSelected((prev) => prev.filter((item) => item !== name));
+    setSelected((prev) => prev.filter((item) => item.name !== name));
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (selected.length < 2 || status === "loading") return;
+
+    const unresolved = selected.filter((item) => !item.rxcui);
+    if (unresolved.length > 0) {
+      setError(`Missing RxNorm ID for: ${unresolved.map((item) => item.name).join(", ")}`);
+      return;
+    }
 
     setStatus("loading");
     setError(null);
@@ -51,7 +70,10 @@ export function InteractionFlags() {
       const response = await fetch("/api/interactions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ drugs: selected }),
+        body: JSON.stringify({
+          drugs: selected.map((item) => item.name),
+          rxcuis: selected.map((item) => item.rxcui),
+        }),
       });
 
       if (!response.ok) {
@@ -113,13 +135,14 @@ export function InteractionFlags() {
           <div className="flex flex-wrap gap-2">
             {selected.map((drug) => (
               <span
-                key={drug}
+                key={drug.name}
                 className="inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-2 text-xs text-white/80"
               >
-                {drug}
+                {drug.name}
+                {!drug.rxcui && <span className="text-red-300">(no match)</span>}
                 <button
                   type="button"
-                  onClick={() => removeMedication(drug)}
+                  onClick={() => removeMedication(drug.name)}
                   className="text-white/50 hover:text-white"
                 >
                   ×
