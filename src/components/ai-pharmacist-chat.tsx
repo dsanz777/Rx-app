@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 
 type ChatMessage = {
   role: "user" | "assistant";
@@ -65,6 +65,8 @@ export function AiPharmacistChat() {
     }
   };
 
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+
   const transcript = useMemo(
     () =>
       messages.map((message, index) => (
@@ -78,6 +80,13 @@ export function AiPharmacistChat() {
     [messages],
   );
 
+  useEffect(() => {
+    const node = scrollRef.current;
+    if (node) {
+      node.scrollTo({ top: node.scrollHeight, behavior: "smooth" });
+    }
+  }, [messages, isSending]);
+
   return (
     <div className="rounded-3xl border border-white/5 bg-white/5 p-6">
       <div className="flex items-center justify-between">
@@ -85,7 +94,10 @@ export function AiPharmacistChat() {
         <p className="text-[10px] uppercase text-white/30">Not medical advice</p>
       </div>
 
-      <div className="mt-4 flex h-60 flex-col gap-3 overflow-y-auto rounded-2xl border border-white/10 bg-black/30 p-4">
+      <div
+        ref={scrollRef}
+        className="mt-4 flex h-60 flex-col gap-3 overflow-y-auto rounded-2xl border border-white/10 bg-black/30 p-4"
+      >
         {transcript}
         {isSending && (
           <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-3 text-sm text-white/60">
