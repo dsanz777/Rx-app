@@ -2,39 +2,12 @@
 
 import { FormEvent, useMemo, useState } from "react";
 import { medicationDataset } from "@/data/medications";
-import { lookupRxCui } from "@/lib/rxnorm";
-
-type InteractionResult = {
-  severity: string;
-  description: string;
-  drugs: string[];
-};
-
-type ResolvedDrug = {
-  input: string;
-  name: string;
-  rxcui: string | null;
-};
 
 const medicationNames = medicationDataset.map((item) => item.name);
-const lookupCache = new Map<string, Promise<ResolvedDrug>>();
-
-async function cachedLookup(name: string): Promise<ResolvedDrug> {
-  const key = name.toLowerCase();
-  if (!lookupCache.has(key)) {
-    const promise = lookupRxCui(name).then((result) => ({
-      input: name,
-      name: result.name,
-      rxcui: result.rxcui,
-    }));
-    lookupCache.set(key, promise);
-  }
-  return lookupCache.get(key)!;
-}
 
 export function InteractionFlags() {
   const [query, setQuery] = useState("");
-  const [selected, setSelected] = useState<ResolvedDrug[]>([]);
+  const [selected, setSelected] = useState<string[]>([]);
   const [results, setResults] = useState<InteractionResult[] | null>(null);
   const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
@@ -47,34 +20,27 @@ export function InteractionFlags() {
       .slice(0, 8);
   }, [query]);
 
-  const addMedication = async (name: string) => {
+  const addMedication = (name: string) => {
     const trimmed = name.trim();
     if (!trimmed) return;
 
-    const exists = selected.some((item) => item.name.toLowerCase() === trimmed.toLowerCase());
+    const exists = selected.some((item) => item.toLowerCase() === trimmed.toLowerCase());
     if (exists) {
       setQuery("");
       return;
     }
 
-    const resolved = await cachedLookup(trimmed);
-    setSelected((prev) => [...prev, resolved]);
+    setSelected((prev) => [...prev, trimmed]);
     setQuery("");
   };
 
   const removeMedication = (name: string) => {
-    setSelected((prev) => prev.filter((item) => item.name !== name));
+    setSelected((prev) => prev.filter((item) => item !== name));
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (selected.length < 2 || status === "loading") return;
-
-    const unresolved = selected.filter((item) => !item.rxcui);
-    if (unresolved.length > 0) {
-      setError(`Missing RxNorm ID for: ${unresolved.map((item) => item.name).join(", ")}`);
-      return;
-    }
 
     setStatus("loading");
     setError(null);
@@ -85,8 +51,7 @@ export function InteractionFlags() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          drugs: selected.map((item) => item.name),
-          rxcuis: selected.map((item) => item.rxcui),
+          drugs: selected,
         }),
       });
 
@@ -149,14 +114,13 @@ export function InteractionFlags() {
           <div className="flex flex-wrap gap-2">
             {selected.map((drug) => (
               <span
-                key={drug.name}
+                key={drug}
                 className="inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-2 text-xs text-white/80"
               >
-                {drug.name}
-                {!drug.rxcui && <span className="text-red-300">(no match)</span>}
+                {drug}
                 <button
                   type="button"
-                  onClick={() => removeMedication(drug.name)}
+                  onClick={() => removeMedication(drug)}
                   className="text-white/50 hover:text-white"
                 >
                   ×
