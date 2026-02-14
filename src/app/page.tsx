@@ -90,8 +90,8 @@ export default async function Home() {
               </p>
               <div className="flex flex-wrap gap-3 text-sm">
                 <a
-                  href="#medication-lookup"
-                  className="rounded-full bg-[var(--accent)] px-5 py-3 font-medium text-black shadow-[0_0_50px_rgba(208,255,61,0.35)] transition hover:opacity-90"
+                  href="#snapshot"
+                  className="rounded-full border border-white/20 bg-black/60 px-5 py-3 font-medium text-white transition hover:text-[var(--accent)]"
                 >
                   View Today’s Brief
                 </a>
@@ -115,13 +115,16 @@ export default async function Home() {
                 ))}
               </div>
             </div>
-            <div className="rounded-3xl border border-white/5 bg-white/5 p-6 shadow-[0_20px_120px_rgba(5,5,5,0.75)]">
+            <div
+              id="snapshot"
+              className="rounded-3xl border border-white/5 bg-black/30 p-6 shadow-[0_20px_120px_rgba(5,5,5,0.75)]"
+            >
               <p className="text-sm uppercase tracking-widest text-white/50">Snapshot · {heroIntel.generatedAt}</p>
               <div className="mt-4 space-y-4 text-sm">
                 {heroIntel.sections.map((section) => (
                   <div
                     key={section.label}
-                    className="rounded-2xl border border-white/5 bg-black/30 p-4"
+                    className="rounded-2xl border border-white/5 bg-black/40 p-4"
                   >
                     <p className="text-xs uppercase tracking-wide text-white/40">
                       {section.label}
