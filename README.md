@@ -22,3 +22,9 @@ App runs on http://localhost:3000.
 ## Brave Search headlines
 Set `BRAVE_API_KEY` in your environment (e.g., `.env.local`) with a valid Brave Search API token. Without it the hero snapshot falls back to canned headlines, but real deployments should provide a key so the snapshot refreshes every 30 minutes with live pharma + ACO pulls.
 ```
+
+## AI Pharmacist chat
+Set `OPENAI_API_KEY` in your environment so the `/api/chat` route can call ChatGPT (`gpt-4o-mini`). The client component posts to `/api/chat`, so local `.env.local` should include:
+```
+OPENAI_API_KEY=sk-...
+```

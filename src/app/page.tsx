@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { MedicationLookup } from "@/components/medication-lookup";
+import { AiPharmacistChat } from "@/components/ai-pharmacist-chat";
 import { getHeroIntel } from "@/lib/brave";
 
 const featureCards = [
@@ -166,24 +167,7 @@ export default async function Home() {
         </section>
 
         <section className="grid gap-6 lg:grid-cols-2">
-          <div className="rounded-3xl border border-white/5 bg-white/5 p-6">
-            <div className="flex items-center justify-between">
-              <p className="text-xs uppercase tracking-[0.4em] text-white/50">
-                AI pharmacist chat
-              </p>
-              <p className="text-[10px] uppercase text-white/30">Not medical advice</p>
-            </div>
-            <div className="mt-4 h-48 rounded-2xl border border-white/10 bg-black/30 p-4 text-sm text-white/70">
-              <p className="text-white/50">You</p>
-              <p>
-                Draft a one-liner for the DHS shutdown risk + how it ties to ACO budgets.
-              </p>
-              <p className="mt-4 text-white/50">Rx Chat</p>
-              <p>
-                Sure thing—here’s the pull quote tying DHS ops to payer flight risk...
-              </p>
-            </div>
-          </div>
+          <AiPharmacistChat />
           <div className="rounded-3xl border border-white/5 bg-white/5 p-6">
             <div className="flex items-center justify-between">
               <p className="text-xs uppercase tracking-[0.4em] text-white/50">Consult form</p>
