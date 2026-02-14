@@ -14,7 +14,7 @@ export async function lookupRxCui(drugInput: string): Promise<RxCuiLookup> {
 
   const url = new URL("https://rxnav.nlm.nih.gov/REST/rxcui.json");
   url.searchParams.set("name", fallbackName);
-  url.searchParams.set("search", "1");
+  url.searchParams.set("search", "2");
 
   const response = await fetch(url, { cache: "force-cache" });
   if (!response.ok) {

@@ -17,6 +17,20 @@ type ResolvedDrug = {
 };
 
 const medicationNames = medicationDataset.map((item) => item.name);
+const lookupCache = new Map<string, Promise<ResolvedDrug>>();
+
+async function cachedLookup(name: string): Promise<ResolvedDrug> {
+  const key = name.toLowerCase();
+  if (!lookupCache.has(key)) {
+    const promise = lookupRxCui(name).then((result) => ({
+      input: name,
+      name: result.name,
+      rxcui: result.rxcui,
+    }));
+    lookupCache.set(key, promise);
+  }
+  return lookupCache.get(key)!;
+}
 
 export function InteractionFlags() {
   const [query, setQuery] = useState("");
@@ -43,8 +57,8 @@ export function InteractionFlags() {
       return;
     }
 
-    const resolved = await lookupRxCui(trimmed);
-    setSelected((prev) => [...prev, { input: trimmed, ...resolved }]);
+    const resolved = await cachedLookup(trimmed);
+    setSelected((prev) => [...prev, resolved]);
     setQuery("");
   };
 
