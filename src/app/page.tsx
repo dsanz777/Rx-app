@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { MedicationLookup } from "@/components/medication-lookup";
 import { AiPharmacistChat } from "@/components/ai-pharmacist-chat";
+import { ConsultForm } from "@/components/consult-form";
 import { getHeroIntel } from "@/lib/brave";
 
 const featureCards = [
@@ -31,13 +32,6 @@ const educationQueue = [
     title: "Hospital at Home FAQ",
     status: "Research phase",
   },
-];
-
-const consultForm = [
-  { label: "Name", placeholder: "Full name" },
-  { label: "Email", placeholder: "contact@domain.com" },
-  { label: "Topic", placeholder: "GLP-1 consult / FFS→VBC" },
-  { label: "Message", placeholder: "What do you need?" },
 ];
 
 function formatRelativeTime(dateInput?: string) {
@@ -168,23 +162,7 @@ export default async function Home() {
 
         <section className="grid gap-6 lg:grid-cols-2">
           <AiPharmacistChat />
-          <div className="rounded-3xl border border-white/5 bg-white/5 p-6">
-            <div className="flex items-center justify-between">
-              <p className="text-xs uppercase tracking-[0.4em] text-white/50">Consult form</p>
-              <p className="text-[10px] uppercase text-white/30">Ask Derek</p>
-            </div>
-            <div className="mt-4 grid gap-3 text-sm">
-              {consultForm.map((field) => (
-                <div key={field.label} className="rounded-2xl border border-white/10 px-4 py-3">
-                  <p className="text-xs uppercase tracking-wide text-white/40">{field.label}</p>
-                  <p className="mt-1 text-base text-white/80">{field.placeholder}</p>
-                </div>
-              ))}
-            </div>
-            <button className="mt-4 w-full rounded-full border border-white/20 py-3 text-sm font-medium text-white/80">
-              Send request
-            </button>
-          </div>
+          <ConsultForm />
         </section>
 
         <section className="rounded-3xl border border-white/5 bg-white/5 p-6">

@@ -28,3 +28,15 @@ Set `OPENAI_API_KEY` in your environment so the `/api/chat` route can call ChatG
 ```
 OPENAI_API_KEY=sk-...
 ```
+
+## Consult form
+Emails send through `/api/consult` via SMTP using `nodemailer`. Configure the following in `.env.local`:
+```
+CONSULT_TARGET_EMAIL=dereksanz@gmail.com
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=465
+SMTP_USER=your-user
+SMTP_PASS=your-app-password
+SMTP_FROM=rx-brief@sanzsolutions.com (optional override)
+```
+Use a Gmail app password or any SMTP relay your org supports.
