@@ -4,6 +4,7 @@ import { AiPharmacistChat } from "@/components/ai-pharmacist-chat";
 import { ConsultForm } from "@/components/consult-form";
 import { InteractionFlags } from "@/components/interaction-flags";
 import { getHeroIntel } from "@/lib/brave";
+import { playbookDocs } from "@/data/docs";
 
 const featureCards = [
   {
@@ -22,25 +23,6 @@ const featureCards = [
     href: "#ai-pharmacist",
   },
 ];
-
-const educationQueue = [
-  {
-    title: "GLP-1 playbook",
-    status: "Draft · needs Derek review",
-    href: "/docs/glp-1-playbook.md",
-  },
-  {
-    title: "ACO REACH survival kit",
-    status: "Outline complete · waiting on payer quotes",
-    href: "/docs/aco-reach-survival-kit.md",
-  },
-  {
-    title: "Hospital at Home FAQ",
-    status: "Research phase",
-    href: "/docs/hospital-at-home-faq.md",
-  },
-];
-
 
 function formatRelativeTime(dateInput?: string) {
   if (!dateInput) return "Updated now";
@@ -66,11 +48,6 @@ export default async function Home() {
     <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
       <div className="mx-auto flex max-w-6xl flex-col gap-16 px-6 py-16 lg:gap-24">
         <header className="space-y-8">
-          <div className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-4 py-1 text-xs uppercase tracking-[0.3em] text-white/70">
-            <span>Rx Brief</span>
-            <span className="h-1 w-1 rounded-full bg-[var(--accent)]" />
-            <span>Built by Derek Sanz</span>
-          </div>
           <div className="grid gap-10 lg:grid-cols-[3fr,2fr] lg:items-end">
             <div className="space-y-6">
               <div className="inline-flex items-center gap-4 rounded-2xl border border-white/10 bg-black/30 px-4 py-2">
@@ -174,12 +151,10 @@ export default async function Home() {
         <section className="rounded-3xl border border-white/5 bg-white/5 p-6">
           <p className="text-xs uppercase tracking-[0.4em] text-white/50">Education hub</p>
           <div className="mt-4 grid gap-4 sm:grid-cols-3">
-            {educationQueue.map((item) => (
+            {playbookDocs.map((item) => (
               <a
                 key={item.title}
-                href={item.href}
-                target="_blank"
-                rel="noreferrer noopener"
+                href={`/docs/${item.slug}`}
                 className="rounded-2xl border border-white/10 p-4 transition hover:border-[var(--accent)]/70"
               >
                 <p className="font-medium text-white">{item.title}</p>
