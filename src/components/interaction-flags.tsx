@@ -9,8 +9,16 @@ type InteractionResult = {
   drugs?: string[];
 };
 
+type SourceMeta = {
+  name: string;
+  license?: string;
+  website?: string;
+  generatedAt?: string;
+};
+
 type ApiResponse = {
   interactions: InteractionResult[];
+  source?: SourceMeta;
 };
 
 type ApiError = {
@@ -45,6 +53,7 @@ export function InteractionFlags() {
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<string[]>([]);
   const [results, setResults] = useState<InteractionResult[] | null>(null);
+  const [sourceMeta, setSourceMeta] = useState<SourceMeta | null>(null);
   const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
 
@@ -81,6 +90,7 @@ export function InteractionFlags() {
     setStatus("loading");
     setError(null);
     setResults(null);
+    setSourceMeta(null);
 
     try {
       const response = await fetch("/api/interactions", {
@@ -96,6 +106,7 @@ export function InteractionFlags() {
 
       const data = (await response.json()) as ApiResponse;
       setResults(data.interactions ?? []);
+      setSourceMeta(data.source ?? null);
       setStatus("idle");
     } catch (err) {
       console.error(err);
@@ -196,6 +207,26 @@ export function InteractionFlags() {
               ) : null}
             </div>
           ))}
+          {sourceMeta && (
+            <p className="text-[11px] text-white/40">
+              Source: {sourceMeta.website ? (
+                <a
+                  href={sourceMeta.website}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="underline decoration-dotted underline-offset-4 hover:text-white/60"
+                >
+                  {sourceMeta.name}
+                </a>
+              ) : (
+                sourceMeta.name
+              )}
+              {sourceMeta.license ? <span> ({sourceMeta.license})</span> : null}
+              {sourceMeta.generatedAt ? (
+                <span> · refreshed {new Date(sourceMeta.generatedAt).toLocaleDateString()}</span>
+              ) : null}
+            </p>
+          )}
         </div>
       )}
     </div>

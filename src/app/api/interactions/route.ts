@@ -1,66 +1,37 @@
 import { NextResponse } from "next/server";
-import { resolveRxcui } from "@/lib/rxnav";
+import graph from "@/data/ddinter.interactions.json";
+import { resolveMedication } from "@/lib/medication-matcher";
 
-type InteractionConcept = {
-  minConceptItem?: {
-    name?: string;
-  };
+const adjacency = graph.adjacency as Record<string, Record<string, string>>;
+const names = graph.names as Record<string, string>;
+
+const severityRank: Record<string, number> = {
+  major: 1,
+  moderate: 2,
+  minor: 3,
+  unknown: 4,
 };
 
-type InteractionPairPayload = {
-  severity?: string;
-  description?: string;
-  interactionConcept?: InteractionConcept[];
-};
+const allowedSeverities = new Set(["major", "moderate"]);
 
-type InteractionType = {
-  interactionPair?: InteractionPairPayload[];
-};
+function normalizeSeverity(value: string) {
+  const normalized = value?.toLowerCase()?.trim();
+  if (normalized === "major" || normalized === "moderate" || normalized === "minor") {
+    return normalized;
+  }
+  return "unknown";
+}
 
-type InteractionTypeGroup = {
-  fullInteractionType?: InteractionType[];
-};
-
-type InteractionResponse = {
-  fullInteractionTypeGroup?: InteractionTypeGroup[];
-};
+function describeInteraction(aName: string, bName: string, severity: string) {
+  const label = severity.charAt(0).toUpperCase() + severity.slice(1);
+  return `${label} interaction flagged by DDInter for ${aName} + ${bName}. Reassess the regimen or monitor closely per clinical guidance.`;
+}
 
 type InteractionResult = {
   severity: string;
   description: string;
   drugs: string[];
 };
-
-const severityRank: Record<string, number> = {
-  major: 1,
-  moderate: 2,
-  minor: 3,
-};
-
-function extractInteractionPairs(payload: InteractionResponse): InteractionResult[] {
-  const results: InteractionResult[] = [];
-  const groups = payload?.fullInteractionTypeGroup ?? [];
-
-  for (const group of groups) {
-    const interactionTypes = group?.fullInteractionType ?? [];
-    for (const interactionType of interactionTypes) {
-      const interactionPairs = interactionType?.interactionPair ?? [];
-      for (const pair of interactionPairs) {
-        const concepts = pair?.interactionConcept ?? [];
-        const drugs = concepts
-          .map((concept) => concept?.minConceptItem?.name)
-          .filter((name): name is string => Boolean(name));
-
-        const severity = pair?.severity ?? "unknown";
-        const description = pair?.description ?? "No description provided.";
-
-        results.push({ severity, description, drugs });
-      }
-    }
-  }
-
-  return results;
-}
 
 export async function POST(request: Request) {
   try {
@@ -74,37 +45,50 @@ export async function POST(request: Request) {
       );
     }
 
-    const resolutions = await Promise.all(drugs.map((drug) => resolveRxcui(drug)));
-    const unresolved = resolutions.filter((item) => !item.rxcui);
-    if (unresolved.length) {
+    const resolved = drugs.map((drug) => ({ input: drug, match: resolveMedication(drug) }));
+    const missing = resolved.filter((entry) => !entry.match);
+
+    if (missing.length) {
       return NextResponse.json(
-        { error: `Could not match: ${unresolved.map((item) => item.name).join(", ")}` },
+        { error: `Could not match: ${missing.map((item) => item.input).join(", ")}` },
         { status: 400 },
       );
     }
 
-    const rxcuiList = resolutions.map((item) => item.rxcui!).join("+");
-    const interactionUrl = `https://rxnav.nlm.nih.gov/REST/interaction/list.json?rxcuis=${rxcuiList}`;
-    const response = await fetch(interactionUrl, { cache: "no-store" });
-    if (!response.ok) {
-      throw new Error(`Interaction service error (${response.status})`);
+    const matches = resolved.map((entry) => entry.match!);
+    const interactions: InteractionResult[] = [];
+
+    for (let i = 0; i < matches.length; i++) {
+      for (let j = i + 1; j < matches.length; j++) {
+        const a = matches[i];
+        const b = matches[j];
+        const severityRaw = adjacency[a.slug]?.[b.slug];
+        if (!severityRaw) continue;
+
+        const severity = normalizeSeverity(severityRaw);
+        if (!allowedSeverities.has(severity)) continue;
+
+        const aName = names[a.slug] ?? a.name;
+        const bName = names[b.slug] ?? b.name;
+        interactions.push({
+          severity,
+          description: describeInteraction(aName, bName, severity),
+          drugs: [aName, bName],
+        });
+      }
     }
 
-    const payload = (await response.json()) as InteractionResponse;
-    const allInteractions = extractInteractionPairs(payload);
+    interactions.sort((a, b) => severityRank[a.severity] - severityRank[b.severity]);
 
-    const filtered = allInteractions
-      .filter((item) => {
-        const severity = item.severity.toLowerCase();
-        return severity === "major" || severity === "moderate";
-      })
-      .sort((a, b) => {
-        const rankA = severityRank[a.severity.toLowerCase()] ?? 99;
-        const rankB = severityRank[b.severity.toLowerCase()] ?? 99;
-        return rankA - rankB;
-      });
-
-    return NextResponse.json({ interactions: filtered });
+    return NextResponse.json({
+      interactions,
+      source: {
+        name: graph.meta.source,
+        website: graph.meta.website,
+        license: graph.meta.license,
+        generatedAt: graph.meta.generatedAt,
+      },
+    });
   } catch (error) {
     console.error("Interaction API error", error);
     return NextResponse.json({ error: "Unable to fetch interactions right now." }, { status: 500 });
