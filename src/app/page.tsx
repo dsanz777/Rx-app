@@ -27,14 +27,17 @@ const educationQueue = [
   {
     title: "GLP-1 playbook",
     status: "Draft · needs Derek review",
+    href: "/docs/glp-1-playbook.md",
   },
   {
     title: "ACO REACH survival kit",
     status: "Outline complete · waiting on payer quotes",
+    href: "/docs/aco-reach-survival-kit.md",
   },
   {
     title: "Hospital at Home FAQ",
     status: "Research phase",
+    href: "/docs/hospital-at-home-faq.md",
   },
 ];
 
@@ -172,10 +175,16 @@ export default async function Home() {
           <p className="text-xs uppercase tracking-[0.4em] text-white/50">Education hub</p>
           <div className="mt-4 grid gap-4 sm:grid-cols-3">
             {educationQueue.map((item) => (
-              <div key={item.title} className="rounded-2xl border border-white/10 p-4">
+              <a
+                key={item.title}
+                href={item.href}
+                target="_blank"
+                rel="noreferrer noopener"
+                className="rounded-2xl border border-white/10 p-4 transition hover:border-[var(--accent)]/70"
+              >
                 <p className="font-medium text-white">{item.title}</p>
                 <p className="text-sm text-white/50">{item.status}</p>
-              </div>
+              </a>
             ))}
           </div>
         </section>
