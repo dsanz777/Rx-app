@@ -38,6 +38,15 @@ const educationQueue = [
   },
 ];
 
+const logisticsVendors = [
+  {
+    title: "Steve’s CO₂ Swaps",
+    subtitle: "Concierge cylinder swaps (residential only)",
+    body: "813-598-1428 · Tampa Bay coverage · guaranteed delivery within 3 days.",
+    footnote: "Residential kegerators + soda rigs only. Schedule via concierge line; no walk-ins.",
+  },
+];
+
 function formatRelativeTime(dateInput?: string) {
   if (!dateInput) return "Updated now";
   const parsed = Date.parse(dateInput);
@@ -174,6 +183,20 @@ export default async function Home() {
               <div key={item.title} className="rounded-2xl border border-white/10 p-4">
                 <p className="font-medium text-white">{item.title}</p>
                 <p className="text-sm text-white/50">{item.status}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="rounded-3xl border border-white/10 bg-black/40 p-6">
+          <p className="text-xs uppercase tracking-[0.4em] text-white/50">Operations concierge</p>
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
+            {logisticsVendors.map((vendor) => (
+              <div key={vendor.title} className="rounded-2xl border border-white/15 bg-black/30 p-4">
+                <p className="text-lg font-semibold text-white">{vendor.title}</p>
+                <p className="text-sm text-white/60">{vendor.subtitle}</p>
+                <p className="mt-3 text-sm text-white/80">{vendor.body}</p>
+                <p className="mt-2 text-xs text-white/50">{vendor.footnote}</p>
               </div>
             ))}
           </div>
