@@ -1,40 +1,64 @@
 import { NextResponse } from "next/server";
-import graph from "@/data/ddinter.interactions.json";
+import OpenAI from "openai";
 import { resolveMedication } from "@/lib/medication-matcher";
 
-const adjacency = graph.adjacency as Record<string, Record<string, string>>;
-const names = graph.names as Record<string, string>;
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 const severityRank: Record<string, number> = {
   major: 1,
   moderate: 2,
   minor: 3,
-  unknown: 4,
+  monitor: 4,
+  none: 5,
+  unknown: 6,
 };
 
-const allowedSeverities = new Set(["major", "moderate"]);
-
-function normalizeSeverity(value: string) {
-  const normalized = value?.toLowerCase()?.trim();
-  if (normalized === "major" || normalized === "moderate" || normalized === "minor") {
-    return normalized;
-  }
-  return "unknown";
-}
-
-function describeInteraction(aName: string, bName: string, severity: string) {
-  const label = severity.charAt(0).toUpperCase() + severity.slice(1);
-  return `${label} interaction flagged by DDInter for ${aName} + ${bName}. Reassess the regimen or monitor closely per clinical guidance.`;
-}
-
-type InteractionResult = {
-  severity: string;
-  description: string;
+type AiInteraction = {
   drugs: string[];
+  severity: string;
+  mechanism?: string;
+  management?: string;
 };
+
+type AiResponse = {
+  interactions?: AiInteraction[];
+};
+
+function formatDescription(entry: AiInteraction) {
+  const segments: string[] = [];
+  if (entry.mechanism) segments.push(`Mechanism: ${entry.mechanism}`);
+  if (entry.management) segments.push(`Plan: ${entry.management}`);
+  if (!segments.length) segments.push("No narrative provided.");
+  return segments.join(" ");
+}
+
+function safeJsonParse(text: string): AiResponse | null {
+  try {
+    const match = text.match(/\{[\s\S]*\}/);
+    if (!match) return null;
+    return JSON.parse(match[0]);
+  } catch (error) {
+    console.error("Failed to parse AI response", error);
+    return null;
+  }
+}
+
+function pairwise(items: string[]) {
+  const pairs: [string, string][] = [];
+  for (let i = 0; i < items.length; i++) {
+    for (let j = i + 1; j < items.length; j++) {
+      pairs.push([items[i], items[j]]);
+    }
+  }
+  return pairs;
+}
 
 export async function POST(request: Request) {
   try {
+    if (!process.env.OPENAI_API_KEY) {
+      return NextResponse.json({ error: "Missing OPENAI_API_KEY" }, { status: 500 });
+    }
+
     const body = (await request.json()) as { drugs?: string[] };
     const drugs = Array.from(new Set((body.drugs ?? []).map((d) => d.trim()).filter(Boolean)));
 
@@ -55,38 +79,67 @@ export async function POST(request: Request) {
       );
     }
 
-    const matches = resolved.map((entry) => entry.match!);
-    const interactions: InteractionResult[] = [];
+    const canonicalNames = resolved.map((entry) => entry.match!.name);
+    const pairs = pairwise(canonicalNames);
 
-    for (let i = 0; i < matches.length; i++) {
-      for (let j = i + 1; j < matches.length; j++) {
-        const a = matches[i];
-        const b = matches[j];
-        const severityRaw = adjacency[a.slug]?.[b.slug];
-        if (!severityRaw) continue;
+    const systemPrompt = `You are a board-certified clinical pharmacist generating deterministic interaction checks.
+Return structured JSON ONLY.
+For every medication pair you are given, you must output an entry—even if no clinically significant interaction exists.
+Severity options: "major", "moderate", "minor", "monitor" (for low-level or lab/watch situations), or "none" when no interaction is known.
+Mechanism should summarize the pharmacology/PK/PD issue.
+Management should describe monitoring or mitigation steps.
+Cite authoritative guidance in-line (guideline name, labeling, primary literature) but do not include URLs.`;
 
-        const severity = normalizeSeverity(severityRaw);
-        if (!allowedSeverities.has(severity)) continue;
+    const userPrompt = `Medications: ${canonicalNames.join(", ")}
+Pairs to evaluate (${pairs.length} total):
+${pairs.map(([a, b]) => `- ${a} + ${b}`).join("\n")}\n
+Return JSON exactly in this shape (no prose):
+{
+  "interactions": [
+    {
+      "drugs": ["Drug A", "Drug B"],
+      "severity": "major|moderate|minor|monitor|none",
+      "mechanism": "...",
+      "management": "..."
+    }
+  ]
+}`;
 
-        const aName = names[a.slug] ?? a.name;
-        const bName = names[b.slug] ?? b.name;
-        interactions.push({
-          severity,
-          description: describeInteraction(aName, bName, severity),
-          drugs: [aName, bName],
-        });
-      }
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      temperature: 0,
+      max_tokens: 1200,
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt },
+      ],
+    });
+
+    const reply = completion.choices[0]?.message?.content?.trim();
+    if (!reply) {
+      throw new Error("Empty AI response");
     }
 
-    interactions.sort((a, b) => severityRank[a.severity] - severityRank[b.severity]);
+    const parsed = safeJsonParse(reply);
+    if (!parsed?.interactions) {
+      throw new Error("Unable to parse AI response");
+    }
+
+    const interactions = parsed.interactions
+      .filter((entry) => Array.isArray(entry.drugs) && entry.drugs.length === 2)
+      .map((entry) => ({
+        severity: (entry.severity ?? "unknown").toLowerCase(),
+        description: formatDescription(entry),
+        drugs: entry.drugs,
+      }))
+      .sort((a, b) => (severityRank[a.severity] ?? 99) - (severityRank[b.severity] ?? 99));
 
     return NextResponse.json({
       interactions,
       source: {
-        name: graph.meta.source,
-        website: graph.meta.website,
-        license: graph.meta.license,
-        generatedAt: graph.meta.generatedAt,
+        name: "GPT-4o clinical interaction model",
+        website: "https://openai.com",
+        generatedAt: new Date().toISOString(),
       },
     });
   } catch (error) {
