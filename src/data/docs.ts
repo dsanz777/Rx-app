@@ -13,10 +13,10 @@ export const playbookDocs: PlaybookDoc[] = [
     file: "glp-1-playbook.md",
   },
   {
-    title: "ACO REACH survival kit",
+    title: "MSSP survival kit",
     status: "Outline complete · waiting on payer quotes",
-    slug: "aco-reach-survival-kit",
-    file: "aco-reach-survival-kit.md",
+    slug: "mssp-survival-kit",
+    file: "mssp-survival-kit.md",
   },
   {
     title: "Hospital at Home FAQ",
