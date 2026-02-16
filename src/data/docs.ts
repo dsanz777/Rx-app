@@ -19,10 +19,10 @@ export const playbookDocs: PlaybookDoc[] = [
     file: "mssp-survival-kit.md",
   },
   {
-    title: "Hospital at Home FAQ",
+    title: "CKD/ESRD playbook",
     status: "Research phase",
-    slug: "hospital-at-home-faq",
-    file: "hospital-at-home-faq.md",
+    slug: "ckd-esrd-playbook",
+    file: "ckd-esrd-playbook.md",
   },
 ];
 
