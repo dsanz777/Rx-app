@@ -37,36 +37,42 @@ const BRAVE_ENDPOINT = "https://api.search.brave.com/res/v1/news/search";
 const DEFAULT_HEADLINES: Record<string, Headline[]> = {
   pharma: [
     {
-      title: "FDA advisers line up Ozempic-style CV indications for 2025 sequencing",
-      url: "https://www.fiercepharma.com/",
+      title: "FDA Approves Oral Semaglutide as First GLP-1 Pill for Weight Loss",
+      url: "https://www.ajmc.com/view/fda-approves-oral-semaglutide-as-first-glp-1-pill-for-weight-loss",
+      source: "AJMC",
+      publishedAt: "19 hours ago",
+    },
+    {
+      title: "FDA approves first GLP-1 pill for obesity from Wegovy maker Novo Nordisk",
+      url: "https://www.cnbc.com/2025/12/22/fda-approves-first-glp-1-pill-for-obesity-from-novo-nordisk.html",
+      source: "CNBC",
+      publishedAt: "December 23, 2025",
+    },
+    {
+      title: "Novo Nordisk wins FDA approval for Wegovy in a pill, introducing first oral GLP-1 option for obesity",
+      url: "https://www.fiercepharma.com/pharma/novo-nordisk-wins-fda-approval-wegovy-pill-introducing-first-oral-glp-1-option-obesity",
       source: "Fierce Pharma",
-    },
-    {
-      title: "CMS signals permanent split between buy-and-bill vs. home delivery GLP-1s",
-      url: "https://www.statnews.com/",
-      source: "STAT",
-    },
-    {
-      title: "Pfizer revives hospital unit with 3-site cell therapy network",
-      url: "https://endpts.com/",
-      source: "Endpoints",
+      publishedAt: "December 23, 2025",
     },
   ],
   aco: [
     {
-      title: "ACO REACH guardrails tighten risk-score growth to 3%",
-      url: "https://www.modernhealthcare.com/",
-      source: "Modern Healthcare",
+      title: "Pharmacy and clinical updates: March 2026",
+      url: "https://www.uhcprovider.com/en/resource-library/news/2026/pcub-updates-mar-2026.html",
+      source: "UHCprovider",
+      publishedAt: "1 day ago",
     },
     {
-      title: "Hospitals press CMS for hybrid ED-at-home waivers inside MSSP",
-      url: "https://www.beckershospitalreview.com/",
-      source: "Becker's",
+      title: "The Year of PBM Reform? Recent Legal Developments, Including a Proposed Transparency Rule for Self-Insured Group Health Plans",
+      url: "https://www.ropesgray.com/en/insights/alerts/2026/02/the-year-of-pbm-reform-against-a-backdrop-of-legislative-and-government-enforcement-attention-the-do",
+      source: "Ropes & Gray",
+      publishedAt: "4 days ago",
     },
     {
-      title: "Humana pilots GLP-1 carve-outs with VBC convener partners",
-      url: "https://www.healthcaredive.com/",
-      source: "Healthcare Dive",
+      title: "Pharmalittle: We're reading about Trump's MFN deals, 340B program controversies, and much more",
+      url: "https://www.statnews.com/pharmalot/2026/03/02/trump-europe-pharma-prices-340b-pharmacies-merck-glp1/",
+      source: "STAT News",
+      publishedAt: "3 hours ago",
     },
   ],
 };
@@ -124,6 +130,10 @@ async function fetchBraveHeadlines(query: string, fallbackKey: "pharma" | "aco",
 }
 
 export async function getHeroIntel(): Promise<HeroIntel> {
+  console.log("Brave API key present:", !!process.env.BRAVE_API_KEY);
+  if (!process.env.BRAVE_API_KEY) {
+    console.log("Using fallback headlines - no API key");
+  }
   const now = new Date();
   const formattedDate = now.toLocaleDateString("en-US", {
     month: "short",
