@@ -86,7 +86,7 @@ async function fetchBraveHeadlines(query: string, fallbackKey: "pharma" | "aco",
   const url = new URL(BRAVE_ENDPOINT);
   url.searchParams.set("q", query);
   url.searchParams.set("count", String(limit));
-  url.searchParams.set("freshness", "pd");
+  url.searchParams.set("freshness", "pw");
 
   try {
     const response = await fetch(url, {
