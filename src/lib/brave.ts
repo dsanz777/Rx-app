@@ -106,14 +106,12 @@ async function fetchBraveHeadlines(query: string, fallbackKey: "pharma" | "aco",
 
     return stories.slice(0, limit).map((story) => ({
       title: story.title,
-      url: story.meta_url?.url || story.url || story.profile?.url || story.meta_url?.display_url || "#",
+      url: story.url || story.meta_url?.display_url || "#",
       source:
         story.meta_url?.display_url?.replace(/^www\./, "") ??
         story.meta_url?.source ??
         story.profile?.name ??
         "Brave News",
-
-      url: story.url || story.meta_url?.url || story.profile?.url || "#",
       publishedAt:
         story.publishedAt ||
         // Brave sometimes returns ISO strings on `time` or `meta_url.source_info.time`.
