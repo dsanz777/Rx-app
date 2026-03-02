@@ -41,6 +41,7 @@ function formatRelativeTime(dateInput?: string) {
   return `${diffDays}d ago`;
 }
 
+// Fixed snapshot for live Brave pulls - Mar 2, 2026
 export default async function Home() {
   const heroIntel = await getHeroIntel();
 
