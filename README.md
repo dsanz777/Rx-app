@@ -47,8 +47,5 @@ The interaction checker ships with an offline DDInter dataset (CC BY-NC-SA 4.0) 
 ```
 npm run ingest:ddinter
 ```
-
-- The script downloads the eight DDInter CSVs plus builds a slug-to-slug adjacency table limited to the medications surfaced in `src/data/medications.ts`.
-- Output lives in `src/data/ddinter.interactions.json` and is bundled with the app.
-- Because DDInter’s TLS chain is misconfigured, the script temporarily disables certificate verification (`NODE_TLS_REJECT_UNAUTHORIZED=0`) strictly for those fetches.
-- `/api/interactions` now answers exclusively from that JSON graph and includes attribution in the UI.
+## Test Edit by Rituxan
+Edited on 2026-03-03 – AI pharmacist enhancement: Added support for drug interaction queries.
