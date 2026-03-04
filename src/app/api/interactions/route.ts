@@ -2,8 +2,6 @@ import { NextResponse } from "next/server";
 import OpenAI from "openai";
 import { resolveMedication } from "@/lib/medication-matcher";
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
 const severityRank: Record<string, number> = {
   major: 1,
   moderate: 2,
@@ -59,6 +57,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Missing OPENAI_API_KEY" }, { status: 500 });
     }
 
+    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
     const body = (await request.json()) as { drugs?: string[] };
     const drugs = Array.from(new Set((body.drugs ?? []).map((d) => d.trim()).filter(Boolean)));
 
@@ -92,7 +92,8 @@ Cite authoritative guidance in-line (guideline name, labeling, primary literatur
 
     const userPrompt = `Medications: ${canonicalNames.join(", ")}
 Pairs to evaluate (${pairs.length} total):
-${pairs.map(([a, b]) => `- ${a} + ${b}`).join("\n")}\n
+${pairs.map(([a, b]) => `- ${a} + ${b}`).join("\n")}
+
 Return JSON exactly in this shape (no prose):
 {
   "interactions": [
@@ -122,7 +123,7 @@ Return JSON exactly in this shape (no prose):
 
     const parsed = safeJsonParse(reply);
     if (!parsed?.interactions) {
-      throw new Error("Unable to parse AI response");
+throw new Error("Unable to parse AI response");
     }
 
     const interactions = parsed.interactions
