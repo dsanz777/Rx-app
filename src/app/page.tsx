@@ -19,7 +19,7 @@ const featureCards = [
   },
   {
     title: "AI Pharmacist",
-    body: "Chat with the brief’s brain—every response tagged with source + safety disclaimers.",
+    body: "Chat with the brief's brain-every response tagged with source + safety disclaimers.",
     href: "#ai-pharmacist",
   },
 ];
@@ -42,7 +42,10 @@ function formatRelativeTime(dateInput?: string) {
 }
 
 // Fixed snapshot for live Brave pulls - Mar 2, 2026
-export default async function Home() {
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+export default async function Home() { 
   const heroIntel = await getHeroIntel();
 
   return (
@@ -69,14 +72,14 @@ export default async function Home() {
                 Clinical signal, minus the noise.
               </h1>
               <p className="text-lg text-white/70 sm:text-xl">
-                Daily pharmacy intel, ACO strategy notes, medication insights — wrapped in a product you can actually share.
+                Daily pharmacy intel, ACO strategy notes, medication insights - wrapped in a product you can actually share.
               </p>
               <div className="flex flex-wrap gap-3 text-sm">
                 <a
                   href="#snapshot"
                   className="rounded-full border border-white/20 bg-black/60 px-5 py-3 font-medium text-white transition hover:text-[var(--accent)]"
                 >
-                  View Today’s Brief
+                  View Today's Brief
                 </a>
                 <a
                   href="#consult"
