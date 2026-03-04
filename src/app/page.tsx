@@ -1,4 +1,3 @@
-export const dynamic = "force-dynamic";
 import Image from "next/image";
 import { MedicationLookup } from "@/components/medication-lookup";
 import { AiPharmacistChat } from "@/components/ai-pharmacist-chat";
@@ -43,7 +42,6 @@ function formatRelativeTime(dateInput?: string) {
 }
 
 // Fixed snapshot for live Brave pulls - Mar 2, 2026
-export const revalidate = 0;
 
 export default async function Home() { 
   const heroIntel = await getHeroIntel();
@@ -176,3 +174,4 @@ export default async function Home() {
     </main>
   );
 }
+export const dynamic = 'force-dynamic';
