@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import OpenAI from "openai";
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+// Move instantiation inside handler to avoid build-time evaluation
 
 export async function POST(request: Request) {
   try {
@@ -16,6 +16,8 @@ export async function POST(request: Request) {
     const sanitizedMessages = (messages ?? [])
       .filter((message) => message.role === "user" || message.role === "assistant")
       .map((message) => ({ role: message.role, content: message.content.slice(0, 2000) }));
+
+    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
