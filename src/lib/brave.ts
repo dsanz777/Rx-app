@@ -78,7 +78,7 @@ const DEFAULT_HEADLINES: Record<string, Headline[]> = {
 };
 
 async function fetchBraveHeadlines(query: string, fallbackKey: "pharma" | "aco", limit = 3): Promise<Headline[]> {
-  const apiKey = process.env.BRAVE_API_KEY;
+  const apiKey = process.env.BSA5J7UJSW0JbOYKXBSCSrz8dzKQBe1;
   if (!apiKey) {
     return DEFAULT_HEADLINES[fallbackKey];
   }
@@ -93,8 +93,6 @@ async function fetchBraveHeadlines(query: string, fallbackKey: "pharma" | "aco",
       headers: {
         Accept: "application/json",
         "X-Subscription-Token": apiKey,
-      },
-        revalidate: 60 * 30, // 30 minutes
       },
     });
 
@@ -153,4 +151,4 @@ export async function getHeroIntel(): Promise<HeroIntel> {
   };
 }
 // Trigger redeploy for live Brave headlines
-cache: 'no-store',
+cache: 'no-store'
