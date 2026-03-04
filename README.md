@@ -28,7 +28,7 @@ BRAVE_API_KEY=BSA5J7UJSW0JbOYKXBSCSrz8dzKQBe1
 ## AI Pharmacist chat
 Set `OPENAI_API_KEY` in your environment so the `/api/chat` route can call ChatGPT (`gpt-4o-mini`). The client component posts to `/api/chat`, so local `.env.local` should include:
 ```
-OPENAI_API_KEY=sk-...
+OPENAI_API_KEY=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
 ```
 
 ## Consult form
