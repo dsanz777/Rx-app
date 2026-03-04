@@ -94,7 +94,6 @@ async function fetchBraveHeadlines(query: string, fallbackKey: "pharma" | "aco",
         Accept: "application/json",
         "X-Subscription-Token": apiKey,
       },
-      next: {
         revalidate: 60 * 30, // 30 minutes
       },
     });
@@ -154,3 +153,4 @@ export async function getHeroIntel(): Promise<HeroIntel> {
   };
 }
 // Trigger redeploy for live Brave headlines
+cache: 'no-store',
