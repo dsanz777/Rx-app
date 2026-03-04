@@ -31,7 +31,7 @@ function filterRecords(query: string) {
 
 export function MedicationLookup() {
   const [query, setQuery] = useState("");
-  const [selectedSlug, setSelectedSlug] = useState<string>(medicationDataset[0]?.slug ?? "");
+  const [selectedSlug, setSelectedSlug] = useState<string>("");
 
   const filteredRecords = useMemo(() => filterRecords(query), [query]);
   const sortedRecords = useMemo(
