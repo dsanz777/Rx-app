@@ -5,6 +5,8 @@ type BraveNewsResult = {
   url: string;
   publishedAt?: string;
   time?: string;
+  page_age?: string;
+  age?: string;
   meta_url?: {
     display_url?: string;
     source?: string;
@@ -44,30 +46,36 @@ type EnrichedHeadline = {
   timestamp: number | null;
 };
 
-function parseTimestamp(raw?: string): number | null {
-  if (!raw) return null;
-  const value = raw.trim();
-  const relativeMatch = value.match(/^(\d+)\s+(minute|minutes|hour|hours|day|days)\s+ago$/i);
-  if (relativeMatch) {
-    const amount = Number(relativeMatch[1]);
-    if (Number.isNaN(amount)) return null;
-    const unit = relativeMatch[2].toLowerCase();
-    const multiplier = unit.startsWith("minute")
-      ? 60 * 1000
-      : unit.startsWith("hour")
-      ? 60 * 60 * 1000
-      : ONE_DAY_MS;
-    return Date.now() - amount * multiplier;
-  }
+function parseRelativeTimestamp(raw: string): number | null {
+  const match = raw.trim().match(/^(\d+)\s+(minute|minutes|hour|hours|day|days)\s+ago$/i);
+  if (!match) return null;
+  const value = Number(match[1]);
+  if (Number.isNaN(value)) return null;
+  const unit = match[2].toLowerCase();
+  const multiplier = unit.startsWith("minute")
+    ? 60 * 1000
+    : unit.startsWith("hour")
+    ? 60 * 60 * 1000
+    : ONE_DAY_MS;
+  return Date.now() - value * multiplier;
+}
 
-  const parsed = Date.parse(value);
-  return Number.isNaN(parsed) ? null : parsed;
+function resolveTimestamp(story: BraveNewsResult): number | null {
+  const candidates = [story.page_age, story.time, story.publishedAt, story.age];
+  for (const candidate of candidates) {
+    if (!candidate) continue;
+    const relative = parseRelativeTimestamp(candidate);
+    if (relative !== null) return relative;
+    const parsed = Date.parse(candidate);
+    if (!Number.isNaN(parsed)) return parsed;
+  }
+  return null;
 }
 
 async function fetchFromBrave(query: string, limit: number, freshness: Freshness, apiKey: string) {
   const url = new URL(BRAVE_ENDPOINT);
   url.searchParams.set("q", query);
-  url.searchParams.set("count", String(limit * 2));
+  url.searchParams.set("count", String(limit * 3));
   url.searchParams.set("freshness", freshness);
 
   const response = await fetch(url, {
@@ -78,12 +86,16 @@ async function fetchFromBrave(query: string, limit: number, freshness: Freshness
     cache: "no-store",
   });
 
+  console.log(`[Brave] ${freshness} status:`, response.status);
+
   if (!response.ok) {
     throw new Error(`Brave API failed: ${response.status}`);
   }
 
   const payload = (await response.json()) as BraveNewsResponse;
   const stories = payload.news?.results ?? [];
+
+  console.log(`[Brave] ${freshness} raw stories:`, stories.length);
 
   const enriched: EnrichedHeadline[] = stories.map((story) => ({
     headline: {
@@ -94,15 +106,16 @@ async function fetchFromBrave(query: string, limit: number, freshness: Freshness
         story.meta_url?.source ??
         story.profile?.name ??
         "Brave News",
-      publishedAt: story.publishedAt || story.time,
+      publishedAt: story.publishedAt || story.time || story.page_age || story.age,
     },
-    timestamp: parseTimestamp(story.time || story.publishedAt),
+    timestamp: resolveTimestamp(story),
   }));
 
-  const freshOnly = enriched.filter(({ timestamp }) => {
-    if (timestamp === null) return false;
-    return Date.now() - timestamp <= ONE_DAY_MS;
-  });
+  const freshOnly = enriched
+    .filter(({ timestamp }) => timestamp !== null && Date.now() - (timestamp as number) <= ONE_DAY_MS)
+    .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+  console.log(`[Brave] ${freshness} fresh within 24h:`, freshOnly.length);
 
   return freshOnly.slice(0, limit);
 }
@@ -131,7 +144,7 @@ async function fetchBraveHeadlines(query: string, limit = 3): Promise<Headline[]
 
     return unique.slice(0, limit).map(({ headline }) => headline);
   } catch (error) {
-    console.error("Fetch failed:", error);
+    console.error("Brave headline fetch failed", error);
     return [];
   }
 }
