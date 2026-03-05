@@ -24,7 +24,6 @@ type ApiResponse = {
 type ApiError = {
   error?: string;
 };
-
 const suggestionNames = (() => {
   const tokens = new Set<string>();
 
@@ -114,10 +113,13 @@ export function InteractionFlags() {
       setStatus("error");
     }
   };
-
-  return (
+  return
+  (
     <div id="interaction-radar" className="rounded-3xl border border-white/5 bg-black/30 p-6">
       <p className="text-xs uppercase tracking-[0.4em] text-white/50">Interaction flags</p>
+      <p className="mt-2 text-sm text-white/70">
+        Results are AI-generated and not medical advice. Consult a healthcare professional.
+      </p>
       <form onSubmit={handleSubmit} className="mt-4 space-y-4">
         <div className="flex flex-col gap-2">
           <label className="text-xs uppercase tracking-[0.3em] text-white/40">Add medication</label>
@@ -203,7 +205,8 @@ export function InteractionFlags() {
               </p>
               <p className="mt-2 text-sm text-white/80">{result.description}</p>
               {result.drugs?.length ? (
-                <p className="mt-2 text-xs text-white/50">{result.drugs.join(" + ")}</p>
+                <p className="mt-2 text-xs text-white/50">{result.drugs.join(" +
+                  ")}</p>
               ) : null}
             </div>
           ))}
