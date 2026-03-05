@@ -205,8 +205,7 @@ export function InteractionFlags() {
               </p>
               <p className="mt-2 text-sm text-white/80">{result.description}</p>
               {result.drugs?.length ? (
-                <p className="mt-2 text-xs text-white/50">{result.drugs.join(" +
-                  ")}</p>
+                <p className="mt-2 text-xs text-white/50">{result.drugs.join(" + ")}</p>
               ) : null}
             </div>
           ))}
