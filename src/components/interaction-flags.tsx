@@ -113,8 +113,8 @@ export function InteractionFlags() {
       setStatus("error");
     }
   };
-  return
-  (
+
+  return (
     <div id="interaction-radar" className="rounded-3xl border border-white/5 bg-black/30 p-6">
       <p className="text-xs uppercase tracking-[0.4em] text-white/50">Interaction flags</p>
       <p className="mt-2 text-sm text-white/70">
