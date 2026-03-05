@@ -1,4 +1,3 @@
-export const dynamic = 'force-dynamic';
 type BraveNewsResult = {
   title: string;
   url: string;
@@ -38,6 +37,7 @@ const BRAVE_ENDPOINT = "https://api.search.brave.com/res/v1/news/search";
 
 async function fetchBraveHeadlines(query: string, limit = 3): Promise<Headline[]> {
   const apiKey = process.env.BRAVE_API_KEY;
+  console.log("Fetching headlines for query:", query);
   console.log("Brave API key present:", !!apiKey);
   if (!apiKey) {
     console.error("No BRAVE_API_KEY - cannot fetch headlines");
@@ -47,7 +47,7 @@ async function fetchBraveHeadlines(query: string, limit = 3): Promise<Headline[]
   const url = new URL(BRAVE_ENDPOINT);
   url.searchParams.set("q", query);
   url.searchParams.set("count", String(limit));
-  url.searchParams.set("freshness", "pd"); // Past day for freshest
+  url.searchParams.set("freshness", "pd"); // Past day
 
   try {
     const response = await fetch(url, {
@@ -55,11 +55,12 @@ async function fetchBraveHeadlines(query: string, limit = 3): Promise<Headline[]
         Accept: "application/json",
         "X-Subscription-Token": apiKey,
       },
-      cache: "no-store", // Force fresh fetch, no caching
+      cache: "no-store",
     });
 
+    console.log("Brave API response status:", response.status);
+
     if (!response.ok) {
-      console.log("Brave API failed with status:", response.status);
       throw new Error(`Brave API failed: ${response.status}`);
     }
 
@@ -67,10 +68,11 @@ async function fetchBraveHeadlines(query: string, limit = 3): Promise<Headline[]
     const stories = payload.news?.results ?? [];
 
     if (!stories.length) {
-      console.log("Brave API returned no results for query:", query);
+      console.log("No results for query:", query);
       return [];
     }
 
+    console.log("Fetched", stories.length, "headlines");
     return stories.slice(0, limit).map((story) => ({
       title: story.title,
       url: story.url || story.meta_url?.display_url || "#",
@@ -82,7 +84,7 @@ async function fetchBraveHeadlines(query: string, limit = 3): Promise<Headline[]
       publishedAt: story.publishedAt || story.time,
     }));
   } catch (error) {
-    console.error("Brave headline fetch failed", error);
+    console.error("Fetch failed:", error);
     return [];
   }
 }

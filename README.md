@@ -24,6 +24,7 @@ Set `BRAVE_API_KEY` in your environment (e.g., `.env.local`) with a valid Brave 
 ```
 BRAVE_API_KEY=BSA5J7UJSW0JbOYKXBSCSrz8dzKQBe1
 ```
+For regular fresh fetches (e.g., on every load), ensure `export const dynamic = 'force-dynamic';` is at the top of `src/app/page.tsx` (makes the page SSR). Add `cache: "no-store"` to the fetch in `src/lib/brave.ts` to prevent caching. Set the key in Vercel env vars for deployed site.
 
 ## AI Pharmacist chat
 Set `OPENAI_API_KEY` in your environment so the `/api/chat` route can call ChatGPT (`gpt-4o-mini`). The client component posts to `/api/chat`, so local `.env.local` should include:
@@ -49,5 +50,6 @@ The interaction checker ships with an offline DDInter dataset (CC BY-NC-SA 4.0) 
 ```
 npm run ingest:ddinter
 ```
+
 ## Test Edit by Rituxan
 Edited on 2026-03-03 – AI pharmacist enhancement: Added support for drug interaction queries.

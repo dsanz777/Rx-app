@@ -42,23 +42,23 @@ export function MedicationLookup() {
   const activeSlug = useMemo(() => {
     const hasSelected = sortedRecords.some((item) => item.slug === selectedSlug);
     if (hasSelected) return selectedSlug;
-    return sortedRecords[0]?.slug ?? medicationDataset[0]?.slug ?? "";
+    return sortedRecords[0]?.slug ?? "";
   }, [sortedRecords, selectedSlug]);
 
   const activeMedication: MedicationRecord | undefined =
     sortedRecords.find((item) => item.slug === activeSlug) ??
-    sortedRecords[0] ??
-    medicationDataset[0];
+    sortedRecords[0];
 
   const hasResults = sortedRecords.length > 0;
-
   return (
     <div className="rounded-3xl border border-white/5 bg-white/5 p-6">
       <div className="flex flex-wrap items-center justify-between gap-4 text-xs uppercase tracking-[0.4em] text-white/50">
         <span>Medication lookup</span>
         <span>Live dataset</span>
       </div>
-
+      <p className="mt-2 text-sm text-white/70">
+        Information is for reference only and not medical advice. Consult a healthcare professional.
+      </p>
       <div className="mt-6 flex flex-col gap-4">
         <label className="flex items-center gap-3 rounded-full border border-white/10 bg-black/30 px-4 py-3 text-sm text-white/80">
           <span className="text-white/40">Search</span>
@@ -127,7 +127,7 @@ export function MedicationLookup() {
               <ul className="mt-2 list-disc space-y-1 pl-4 text-sm text-white/80">
                 {activeMedication?.pearls.map((pearl) => (
                   <li key={pearl}>{pearl}</li>
-                ))}
+                       ))}
               </ul>
             </div>
           </div>
