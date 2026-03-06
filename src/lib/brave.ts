@@ -139,25 +139,40 @@ async function tryFetch(query: string, apiKey: string, freshness: "pd" | "pw") {
   return stories.filter(isRecent).map(normalizeHeadline);
 }
 
-async function fetchSection(query: string) {
+async function fetchSection(queries: string[]) {
   const apiKey = process.env.BRAVE_API_KEY;
   if (!apiKey) {
     console.warn("[Brave] Missing API key");
     return [];
   }
 
-  for (const freshness of ["pd", "pw"] as const) {
-    try {
-      const headlines = await tryFetch(query, apiKey, freshness);
-      if (headlines.length) {
-        return headlines.slice(0, 3);
+  const collected: Headline[] = [];
+  const seen = new Set<string>();
+
+  for (const query of queries) {
+    for (const freshness of ["pd", "pw"] as const) {
+      try {
+        const headlines = await tryFetch(query, apiKey, freshness);
+        for (const headline of headlines) {
+          if (seen.has(headline.url)) {
+            continue;
+          }
+          seen.add(headline.url);
+          collected.push(headline);
+          if (collected.length >= 3) {
+            return collected;
+          }
+        }
+        if (headlines.length) {
+          break; // move to next query once we pulled fresh results
+        }
+      } catch (error) {
+        console.error("[Brave] fetch failed", error);
       }
-    } catch (error) {
-      console.error("[Brave] fetch failed", error);
     }
   }
 
-  return [];
+  return collected;
 }
 
 export async function getHeroIntel(): Promise<HeroIntel> {
@@ -169,8 +184,16 @@ export async function getHeroIntel(): Promise<HeroIntel> {
   const formattedDate = estFormatter.format(new Date());
 
   const [pharma, aco] = await Promise.all([
-    fetchSection("pharmaceutical policy GLP-1 FDA news"),
-    fetchSection("ACO value based care pharmacy news"),
+    fetchSection([
+      "pharmacy industry FDA reimbursement news",
+      "drug pricing PBM policy update",
+      "specialty pharmacy reimbursement news",
+    ]),
+    fetchSection([
+      "MSSP accountable care organization CMS news",
+      "value based care ACO Medicare shared savings",
+      "ACO REACH pharmacy operations CMS",
+    ]),
   ]);
 
   return {
