@@ -36,48 +36,7 @@ export type HeroIntel = {
 };
 
 const BRAVE_ENDPOINT = "https://api.search.brave.com/res/v1/news/search";
-const FALLBACK_HEADLINES: Record<string, Headline[]> = {
-  pharma: [
-    {
-      title: "FDA warns telehealth firms over misleading compounded GLP-1 ads",
-      url: "https://thehill.com/policy/healthcare/5765337-fda-telehealth-companies-compounded-glp-1/",
-      source: "The Hill",
-      publishedAt: "Mar 3, 2026",
-    },
-    {
-      title: "FDA issues 30 warning letters tied to GLP-1 marketing claims",
-      url: "https://www.pharmaceuticalcommerce.com/view/fda-issues-30-warning-letters-to-telehealth-firms-over-misleading-compounded-glp-1-marketing",
-      source: "Pharmaceutical Commerce",
-      publishedAt: "Mar 4, 2026",
-    },
-    {
-      title: "Fierce Pharma: FDA intensifies GLP-1 compounding crackdown",
-      url: "https://www.fiercepharma.com/pharma/fda-ramps-crackdown-glp-1-drug-compounders-fresh-batch-30-warning-letters",
-      source: "Fierce Pharma",
-      publishedAt: "Mar 4, 2026",
-    },
-  ],
-  aco: [
-    {
-      title: "CMS estimates 14.3M Medicare beneficiaries in ACOs for 2026",
-      url: "https://www.fiercehealthcare.com/regulatory/cms-estimates-143m-medicare-beneficiaries-are-enrolled-aco-2026",
-      source: "Fierce Healthcare",
-      publishedAt: "Feb 2026",
-    },
-    {
-      title: "ACO REACH participants prep for pharmacy spend audits",
-      url: "https://www.modernhealthcare.com/politics-regulation/mh-medicare-aco-shared-savings-program-2026/",
-      source: "Modern Healthcare",
-      publishedAt: "Feb 2026",
-    },
-    {
-      title: "ACO pharmacies look to GLP-1 risk-sharing contracts",
-      url: "https://www.healthcarelabyrinth.com/march-3-2026/",
-      source: "Healthcare Labyrinth",
-      publishedAt: "Mar 3, 2026",
-    },
-  ],
-};
+const MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000; // last 7 days
 
 const resolveSource = (story: BraveNewsResult) =>
   story.meta_url?.display_url?.replace(/^www\./, "") ??
@@ -85,13 +44,67 @@ const resolveSource = (story: BraveNewsResult) =>
   story.profile?.name ??
   "News";
 
-const resolveDate = (story: BraveNewsResult) =>
-  story.publishedAt || story.page_age || story.age || story.time;
+const parseRelativeAge = (raw?: string) => {
+  if (!raw) return null;
+  const normalized = raw.trim().toLowerCase();
+  if (/^[a-z]{3}\s\d{1,2},\s?\d{4}$/.test(normalized)) {
+    const parsedDate = Date.parse(raw);
+    return Number.isNaN(parsedDate) ? null : new Date(parsedDate);
+  }
+
+  const relativeMatch = normalized.match(/(\d+)([smhdw])/);
+  if (!relativeMatch) return null;
+  const value = Number(relativeMatch[1]);
+  const unit = relativeMatch[2];
+  const now = Date.now();
+
+  const multipliers: Record<string, number> = {
+    s: 1000,
+    m: 60 * 1000,
+    h: 60 * 60 * 1000,
+    d: 24 * 60 * 60 * 1000,
+    w: 7 * 24 * 60 * 60 * 1000,
+  };
+
+  const ms = multipliers[unit];
+  return ms ? new Date(now - value * ms) : null;
+};
+
+const resolvePublishedAt = (story: BraveNewsResult) => {
+  const candidates = [story.publishedAt, story.time, story.page_age];
+
+  for (const candidate of candidates) {
+    if (!candidate) continue;
+    const parsed = Date.parse(candidate);
+    if (!Number.isNaN(parsed)) {
+      return new Date(parsed);
+    }
+  }
+
+  return parseRelativeAge(story.age);
+};
+
+const isRecent = (story: BraveNewsResult) => {
+  const publishedDate = resolvePublishedAt(story);
+  if (!publishedDate) return false;
+  return Date.now() - publishedDate.getTime() <= MAX_AGE_MS;
+};
+
+const normalizeHeadline = (story: BraveNewsResult): Headline => ({
+  title: story.title,
+  url: story.url || story.meta_url?.display_url || "#",
+  source: resolveSource(story),
+  publishedAt:
+    resolvePublishedAt(story)?.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+    }) ?? undefined,
+});
 
 async function tryFetch(query: string, apiKey: string, freshness: "pd" | "pw") {
   const url = new URL(BRAVE_ENDPOINT);
   url.searchParams.set("q", query);
-  url.searchParams.set("count", "10");
+  url.searchParams.set("count", "20");
   url.searchParams.set("freshness", freshness);
 
   const response = await fetch(url, {
@@ -113,19 +126,14 @@ async function tryFetch(query: string, apiKey: string, freshness: "pd" | "pw") {
   const stories = payload.news?.results ?? [];
   console.log(`[Brave] ${query} items=${stories.length}`);
 
-  return stories.map((story) => ({
-    title: story.title,
-    url: story.url || story.meta_url?.display_url || "#",
-    source: resolveSource(story),
-    publishedAt: resolveDate(story),
-  }));
+  return stories.filter(isRecent).map(normalizeHeadline);
 }
 
-async function fetchSection(query: string, fallbackKey: keyof typeof FALLBACK_HEADLINES) {
+async function fetchSection(query: string) {
   const apiKey = process.env.BRAVE_API_KEY;
   if (!apiKey) {
-    console.warn("[Brave] Missing API key, using fallback for", fallbackKey);
-    return FALLBACK_HEADLINES[fallbackKey];
+    console.warn("[Brave] Missing API key");
+    return [];
   }
 
   for (const freshness of ["pd", "pw"] as const) {
@@ -139,8 +147,7 @@ async function fetchSection(query: string, fallbackKey: keyof typeof FALLBACK_HE
     }
   }
 
-  console.warn("[Brave] No live headlines for", fallbackKey, "—using fallback");
-  return FALLBACK_HEADLINES[fallbackKey];
+  return [];
 }
 
 export async function getHeroIntel(): Promise<HeroIntel> {
@@ -151,8 +158,8 @@ export async function getHeroIntel(): Promise<HeroIntel> {
   });
 
   const [pharma, aco] = await Promise.all([
-    fetchSection("pharma news FDA GLP-1", "pharma"),
-    fetchSection("ACO value based care pharmacy news", "aco"),
+    fetchSection("pharmaceutical policy GLP-1 FDA news"),
+    fetchSection("ACO value based care pharmacy news"),
   ]);
 
   return {
