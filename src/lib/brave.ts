@@ -97,16 +97,15 @@ const isRecent = (story: BraveNewsResult) => {
   return Date.now() - publishedDate.getTime() <= MAX_AGE_MS;
 };
 
-const normalizeHeadline = (story: BraveNewsResult): Headline => ({
-  title: story.title,
-  url: story.url || story.meta_url?.display_url || "#",
-  source: resolveSource(story),
-  publishedAt:
-    resolvePublishedAt(story)?.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-    }) ?? undefined,
-});
+const normalizeHeadline = (story: BraveNewsResult): Headline => {
+  const publishedDate = resolvePublishedAt(story);
+  return {
+    title: story.title,
+    url: story.url || story.meta_url?.display_url || "#",
+    source: resolveSource(story),
+    publishedAt: publishedDate?.toISOString(),
+  };
+};
 
 async function tryFetch(query: string, apiKey: string, freshness: "pd" | "pw") {
   const url = new URL(BRAVE_ENDPOINT);
