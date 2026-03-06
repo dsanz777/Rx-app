@@ -41,15 +41,15 @@ export function MedicationLookup() {
 
   const activeSlug = useMemo(() => {
     const hasSelected = sortedRecords.some((item) => item.slug === selectedSlug);
-    if (hasSelected) return selectedSlug;
-    return sortedRecords[0]?.slug ?? "";
+    return hasSelected ? selectedSlug : "";
   }, [sortedRecords, selectedSlug]);
 
-  const activeMedication: MedicationRecord | undefined =
-    sortedRecords.find((item) => item.slug === activeSlug) ??
-    sortedRecords[0];
+  const activeMedication: MedicationRecord | undefined = sortedRecords.find(
+    (item) => item.slug === activeSlug,
+  );
 
   const hasResults = sortedRecords.length > 0;
+  const hasSelectedMedication = Boolean(activeMedication);
   return (
     <div className="rounded-3xl border border-white/5 bg-white/5 p-6">
       <div className="flex flex-wrap items-center justify-between gap-4 text-xs uppercase tracking-[0.4em] text-white/50">
@@ -74,10 +74,13 @@ export function MedicationLookup() {
         <label className="flex flex-col gap-2 text-xs uppercase tracking-[0.35em] text-white/40">
           Select medication
           <select
-            value={activeSlug}
+            value={selectedSlug}
             onChange={(event) => setSelectedSlug(event.target.value)}
             className="w-full rounded-2xl border border-white/15 bg-black/40 px-4 py-3 text-base font-medium normal-case tracking-normal text-white focus:border-[var(--accent)] focus:outline-none"
           >
+            <option value="" className="text-black">
+              -- Select a medication --
+            </option>
             {sortedRecords.map((item) => (
               <option key={item.slug} value={item.slug} className="text-black">
                 {item.name}
@@ -94,6 +97,10 @@ export function MedicationLookup() {
       {!hasResults ? (
         <div className="mt-6 rounded-3xl border border-white/10 bg-black/30 p-6 text-sm text-white/70">
           No match yet. Try a drug name, class, or renal keyword.
+        </div>
+      ) : !hasSelectedMedication ? (
+        <div className="mt-6 rounded-3xl border border-white/10 bg-black/30 p-6 text-sm text-white/70">
+          Select a medication to view details.
         </div>
       ) : (
         <div className="mt-6 rounded-3xl border border-white/10 bg-black/30 p-6">
