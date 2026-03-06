@@ -161,11 +161,12 @@ async function fetchSection(query: string) {
 }
 
 export async function getHeroIntel(): Promise<HeroIntel> {
-  const now = new Date();
-  const formattedDate = now.toLocaleDateString("en-US", {
+  const estFormatter = new Intl.DateTimeFormat("en-US", {
     month: "short",
     day: "numeric",
+    timeZone: "America/New_York",
   });
+  const formattedDate = estFormatter.format(new Date());
 
   const [pharma, aco] = await Promise.all([
     fetchSection("pharmaceutical policy GLP-1 FDA news"),
