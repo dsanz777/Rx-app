@@ -6,7 +6,8 @@ import { load } from "cheerio";
 const SOURCE_URL = "https://denalirx.com/top-200-drugs/";
 const OPEN_FDA_URL = "https://api.fda.gov/drug/label.json";
 const OUTPUT_PATH = path.join(process.cwd(), "src/data/medications.generated.json");
-const MAX_RECORDS = 200;
+const MAX_RECORDS = 400;
+const OPEN_FDA_SEED_LIMIT = 2500;
 
 export type MedicationRecord = {
   slug: string;
@@ -31,7 +32,7 @@ type TopDrug = {
 type OpenFdaLabel = Record<string, string | string[] | undefined>;
 type OpenFdaResponse = { results?: OpenFdaLabel[] };
 
-async function fetchTopDrugList() {
+async function fetchTopDrugListFromDenali() {
   const response = await fetch(SOURCE_URL);
   if (!response.ok) {
     throw new Error(`Failed to download top drug table: ${response.status}`);
@@ -55,11 +56,115 @@ async function fetchTopDrugList() {
     list.push({ generic, brand, drugClass, schedule });
   });
 
-  if (!list.length) {
-    throw new Error("Unable to parse any drugs from source table");
+  return list;
+}
+
+type OpenFdaCountResponse = {
+  results?: Array<{ term?: string; count?: number }>;
+};
+
+async function fetchTopDrugListFromOpenFda() {
+  const url = `${OPEN_FDA_URL}?search=${encodeURIComponent("_exists_:openfda.generic_name")}&count=openfda.generic_name.exact&limit=${OPEN_FDA_SEED_LIMIT}`;
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch OpenFDA seed list: ${response.status}`);
   }
 
-  return list.slice(0, MAX_RECORDS);
+  const data = (await response.json()) as OpenFdaCountResponse;
+  const terms = (data.results ?? [])
+    .map((item) => cleanText(item.term))
+    .filter(Boolean)
+    .map(normalizeGenericName)
+    .filter(Boolean)
+    .filter(isLikelyMedicationName);
+
+  const unique = Array.from(new Set(terms.map((item) => item.toLowerCase())));
+  return unique.map((genericLower) => ({
+    generic: titleCase(genericLower),
+    brand: "",
+    drugClass: "",
+    schedule: "-",
+  } satisfies TopDrug));
+}
+
+const NON_MEDICATION_TERMS = new Set([
+  "water",
+  "alcohol",
+  "ethyl alcohol",
+  "isopropyl alcohol",
+  "oxygen",
+  "nitrogen",
+  "petrolatum",
+  "white petrolatum",
+  "glycerin",
+  "dimethicone",
+  "witch hazel",
+  "titanium dioxide",
+  "zinc oxide",
+  "titanium dioxide and zinc oxide",
+  "avobenzone",
+  "octisalate",
+  "octinoxate",
+  "homosalate",
+  "menthol",
+  "eucalyptol",
+  "camphor",
+  "capsaicin",
+  "colloidal oatmeal",
+  "chloroxylenol",
+  "cetylpyridinium chloride",
+  "povidone-iodine",
+  "bacitracin zinc",
+  "aluminum chlorohydrate",
+  "aluminum sesquichlorohydrate",
+  "aluminum zirconium tetrachlorohydrex gly",
+]);
+
+function normalizeGenericName(value: string) {
+  return value
+    .split(/[;,]/)[0]
+    ?.replace(/\s*\([^)]*\)\s*/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function isLikelyMedicationName(value: string) {
+  if (!value) return false;
+  const normalized = value.toLowerCase();
+  if (NON_MEDICATION_TERMS.has(normalized)) return false;
+  if (/\b(kit|shampoo|toothpaste|cleanser|soap|deodorant|sunscreen)\b/i.test(normalized)) {
+    return false;
+  }
+  return /[a-z]/i.test(value);
+}
+
+async function fetchTopDrugList() {
+  const merged = new Map<string, TopDrug>();
+
+  try {
+    const denali = await fetchTopDrugListFromDenali();
+    denali.forEach((item) => {
+      const key = item.generic.toLowerCase();
+      if (!merged.has(key)) merged.set(key, item);
+    });
+    console.log(`Loaded ${denali.length} seed meds from denalirx top list.`);
+  } catch (error) {
+    console.warn(`Denali seed fetch failed: ${(error as Error).message}`);
+  }
+
+  const openFda = await fetchTopDrugListFromOpenFda();
+  openFda.forEach((item) => {
+    const key = item.generic.toLowerCase();
+    if (!merged.has(key)) merged.set(key, item);
+  });
+  console.log(`Loaded ${openFda.length} seed meds from OpenFDA frequency list.`);
+
+  const list = Array.from(merged.values()).slice(0, MAX_RECORDS);
+  if (!list.length) {
+    throw new Error("Unable to build any drugs from source lists");
+  }
+
+  return list;
 }
 
 async function fetchOpenFdaLabel(target: { generic: string; brand: string }) {

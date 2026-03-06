@@ -48,8 +48,13 @@ const suggestionNames = (() => {
   return Array.from(tokens).filter(Boolean);
 })();
 
+const dropdownMedicationNames = Array.from(new Set(medicationDataset.map((item) => item.name))).sort(
+  (a, b) => a.localeCompare(b),
+);
+
 export function InteractionFlags() {
   const [query, setQuery] = useState("");
+  const [selectedDropdown, setSelectedDropdown] = useState<string>(dropdownMedicationNames[0] ?? "");
   const [selected, setSelected] = useState<string[]>([]);
   const [results, setResults] = useState<InteractionResult[] | null>(null);
   const [sourceMeta, setSourceMeta] = useState<SourceMeta | null>(null);
@@ -155,6 +160,30 @@ export function InteractionFlags() {
               Add
             </button>
           </div>
+
+          <label className="mt-2 flex flex-col gap-2 text-xs uppercase tracking-[0.35em] text-white/40">
+            Or select medication
+            <div className="flex items-center gap-2">
+              <select
+                value={selectedDropdown}
+                onChange={(event) => setSelectedDropdown(event.target.value)}
+                className="w-full rounded-2xl border border-white/15 bg-black/40 px-4 py-3 text-sm font-medium normal-case tracking-normal text-white focus:border-[var(--accent)] focus:outline-none"
+              >
+                {dropdownMedicationNames.map((name) => (
+                  <option key={name} value={name} className="text-black">
+                    {name}
+                  </option>
+                ))}
+              </select>
+              <button
+                type="button"
+                onClick={() => addMedication(selectedDropdown)}
+                className="rounded-full border border-white/20 px-4 py-2 text-xs uppercase tracking-[0.3em] text-white/70 transition hover:text-white"
+              >
+                Add
+              </button>
+            </div>
+          </label>
         </div>
 
         {selected.length > 0 && (

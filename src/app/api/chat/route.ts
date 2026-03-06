@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
 import OpenAI from "openai";
 
-// Move instantiation inside handler to avoid build-time evaluation
-
 export async function POST(request: Request) {
   try {
     if (!process.env.OPENAI_API_KEY) {
