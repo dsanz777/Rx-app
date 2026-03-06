@@ -47,6 +47,7 @@ const resolveSource = (story: BraveNewsResult) =>
 const parseRelativeAge = (raw?: string) => {
   if (!raw) return null;
   const normalized = raw.trim().toLowerCase();
+
   if (/^[a-z]{3}\s\d{1,2},\s?\d{4}$/.test(normalized)) {
     const parsedDate = Date.parse(raw);
     return Number.isNaN(parsedDate) ? null : new Date(parsedDate);
@@ -70,18 +71,24 @@ const parseRelativeAge = (raw?: string) => {
   return ms ? new Date(now - value * ms) : null;
 };
 
+const toDate = (value?: string) => {
+  if (!value) return null;
+  const parsed = Date.parse(value);
+  if (!Number.isNaN(parsed)) {
+    return new Date(parsed);
+  }
+  return parseRelativeAge(value);
+};
+
 const resolvePublishedAt = (story: BraveNewsResult) => {
-  const candidates = [story.publishedAt, story.time, story.page_age];
+  const candidates = [story.publishedAt, story.time, story.page_age, story.age];
 
   for (const candidate of candidates) {
-    if (!candidate) continue;
-    const parsed = Date.parse(candidate);
-    if (!Number.isNaN(parsed)) {
-      return new Date(parsed);
-    }
+    const date = toDate(candidate);
+    if (date) return date;
   }
 
-  return parseRelativeAge(story.age);
+  return null;
 };
 
 const isRecent = (story: BraveNewsResult) => {
