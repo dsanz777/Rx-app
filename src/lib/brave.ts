@@ -129,8 +129,8 @@ async function tryFetch(query: string, apiKey: string, freshness: "pd" | "pw") {
     return [];
   }
 
-  const payload = (await response.json()) as BraveNewsResponse;
-  const stories = payload.news?.results ?? [];
+  const payload = (await response.json()) as BraveNewsResponse & { results?: BraveNewsResult[] };
+  const stories = payload.news?.results ?? payload.results ?? [];
   console.log(`[Brave] ${query} items=${stories.length}`);
 
   return stories.filter(isRecent).map(normalizeHeadline);
