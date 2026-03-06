@@ -7,6 +7,8 @@ type BraveNewsResult = {
   age?: string;
   meta_url?: {
     display_url?: string;
+    hostname?: string;
+    netloc?: string;
     source?: string;
   };
   profile?: {
@@ -40,6 +42,8 @@ const MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000; // last 7 days
 
 const resolveSource = (story: BraveNewsResult) =>
   story.meta_url?.display_url?.replace(/^www\./, "") ??
+  story.meta_url?.hostname?.replace(/^www\./, "") ??
+  story.meta_url?.netloc?.replace(/^www\./, "") ??
   story.meta_url?.source ??
   story.profile?.name ??
   "News";
