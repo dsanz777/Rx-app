@@ -22,6 +22,12 @@ interface BraveNewsResponse {
   };
 }
 
+type SectionConfig = {
+  queries: string[];
+  include: string[];
+  exclude?: string[];
+};
+
 export type Headline = {
   title: string;
   url: string;
@@ -111,6 +117,29 @@ const normalizeHeadline = (story: BraveNewsResult): Headline => {
   };
 };
 
+const normalizeUrlForDedup = (url: string) =>
+  url.replace(/^https?:\/\//, "").replace(/^www\./, "").replace(/\/?$/, "");
+
+const filterHeadlines = (headlines: Headline[], include: string[], exclude: string[] = []) => {
+  if (!include.length && !exclude.length) {
+    return headlines;
+  }
+
+  const includes = include.map((token) => token.toLowerCase());
+  const excludes = exclude.map((token) => token.toLowerCase());
+
+  return headlines.filter((headline) => {
+    const haystack = `${headline.title} ${headline.source}`.toLowerCase();
+    if (excludes.some((token) => haystack.includes(token))) {
+      return false;
+    }
+    if (!includes.length) {
+      return true;
+    }
+    return includes.some((token) => haystack.includes(token));
+  });
+};
+
 async function tryFetch(query: string, apiKey: string, freshness: "pd" | "pw") {
   const url = new URL(BRAVE_ENDPOINT);
   url.searchParams.set("q", query);
@@ -139,36 +168,58 @@ async function tryFetch(query: string, apiKey: string, freshness: "pd" | "pw") {
   return stories.filter(isRecent).map(normalizeHeadline);
 }
 
-async function fetchSection(queries: string[]) {
+async function fetchSection(config: SectionConfig) {
   const apiKey = process.env.BRAVE_API_KEY;
   if (!apiKey) {
     console.warn("[Brave] Missing API key");
     return [];
   }
 
-  const collected: Headline[] = [];
-  const seen = new Set<string>();
+  const { queries, include, exclude = [] } = config;
+  const buckets: Headline[][] = [];
 
   for (const query of queries) {
+    let bucket: Headline[] = [];
     for (const freshness of ["pd", "pw"] as const) {
       try {
-        const headlines = await tryFetch(query, apiKey, freshness);
-        for (const headline of headlines) {
-          if (seen.has(headline.url)) {
-            continue;
-          }
-          seen.add(headline.url);
-          collected.push(headline);
-          if (collected.length >= 3) {
-            return collected;
-          }
-        }
+        const headlines = filterHeadlines(await tryFetch(query, apiKey, freshness), include, exclude);
         if (headlines.length) {
-          break; // move to next query once we pulled fresh results
+          bucket = headlines;
+          break;
         }
       } catch (error) {
         console.error("[Brave] fetch failed", error);
       }
+    }
+    buckets.push(bucket);
+  }
+
+  const seen = new Set<string>();
+  const collected: Headline[] = [];
+
+  while (collected.length < 3) {
+    let added = false;
+
+    for (const bucket of buckets) {
+      while (bucket.length) {
+        const headline = bucket.shift()!;
+        const dedupKey = normalizeUrlForDedup(headline.url);
+        if (seen.has(dedupKey)) {
+          continue;
+        }
+        seen.add(dedupKey);
+        collected.push(headline);
+        added = true;
+        break;
+      }
+
+      if (collected.length >= 3) {
+        break;
+      }
+    }
+
+    if (!added) {
+      break;
     }
   }
 
@@ -184,16 +235,23 @@ export async function getHeroIntel(): Promise<HeroIntel> {
   const formattedDate = estFormatter.format(new Date());
 
   const [pharma, aco] = await Promise.all([
-    fetchSection([
-      "pharmacy industry FDA reimbursement news",
-      "drug pricing PBM policy update",
-      "specialty pharmacy reimbursement news",
-    ]),
-    fetchSection([
-      "MSSP accountable care organization CMS news",
-      "value based care ACO Medicare shared savings",
-      "ACO REACH pharmacy operations CMS",
-    ]),
+    fetchSection({
+      queries: [
+        "pharmacy industry FDA reimbursement news",
+        "drug pricing PBM policy update",
+        "specialty pharmacy reimbursement news",
+      ],
+      include: ["pharmacy", "drug", "fda", "pbm", "pricing", "specialty"],
+      exclude: ["glp-1", "ozempic", "wegovy"],
+    }),
+    fetchSection({
+      queries: [
+        "MSSP accountable care organization CMS news",
+        "value based care ACO Medicare shared savings",
+        "ACO REACH pharmacy operations CMS",
+      ],
+      include: ["aco", "value based", "mssp", "medicare", "cms", "shared savings"],
+    }),
   ]);
 
   return {
