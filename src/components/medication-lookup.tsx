@@ -29,6 +29,46 @@ function filterRecords(query: string) {
   return medicationDataset.filter((_, idx) => searchIndex[idx].blob.includes(normalizedQuery));
 }
 
+function stripSectionNumbering(text?: string) {
+  if (!text?.trim()) return "Not available yet.";
+
+  return text
+    .replace(/^\s*\d+(?:\.\d+)?\s+(INDICATIONS?\s+AND\s+USAGE|DOSAGE\s+AND\s+ADMINISTRATION)\s*/i, "")
+    .replace(/^\s*(INDICATIONS?\s+AND\s+USAGE|DOSAGE\s+AND\s+ADMINISTRATION)\s*[:\-]?\s*/i, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
+
+function fallbackText(value?: string, fallback = "Not available yet.") {
+  return value?.trim() ? value.trim() : fallback;
+}
+
+function splitIndicationUsage(text?: string) {
+  const cleaned = stripSectionNumbering(text);
+  if (!cleaned || cleaned === "Not available yet.") {
+    return {
+      indication: "Not available yet.",
+      usage: "Not available yet.",
+    };
+  }
+
+  const firstSentenceMatch = cleaned.match(/^(.+?[.!?])\s+/);
+  if (!firstSentenceMatch) {
+    return {
+      indication: cleaned,
+      usage: "Clinical use details are covered in Dosage and administration below.",
+    };
+  }
+
+  const indication = firstSentenceMatch[1].trim();
+  const usage = cleaned.slice(firstSentenceMatch[0].length).trim();
+
+  return {
+    indication,
+    usage: usage || "Clinical use details are covered in Dosage and administration below.",
+  };
+}
+
 export function MedicationLookup() {
   const [query, setQuery] = useState("");
   const [selectedSlug, setSelectedSlug] = useState<string>("");
@@ -48,6 +88,7 @@ export function MedicationLookup() {
     (item) => item.slug === activeSlug,
   );
 
+  const indicationUsage = splitIndicationUsage(activeMedication?.summary);
   const hasResults = sortedRecords.length > 0;
   const hasSelectedMedication = Boolean(activeMedication);
   return (
@@ -107,21 +148,35 @@ export function MedicationLookup() {
           <p className="text-xs uppercase tracking-[0.35em] text-white/40">Details</p>
           <h3 className="mt-2 text-2xl font-semibold text-white">{activeMedication?.name}</h3>
           <p className="text-sm uppercase tracking-[0.35em] text-white/40">{activeMedication?.class}</p>
-          <p className="mt-4 text-sm text-white/70">{activeMedication?.summary}</p>
-
           <div className="mt-6 grid gap-4 sm:grid-cols-2">
             {[
               {
-                label: "Dose",
-                value: activeMedication?.dose,
+                label: "Indication",
+                value: indicationUsage.indication,
               },
               {
-                label: "Renal",
-                value: activeMedication?.renal,
+                label: "Usage",
+                value: indicationUsage.usage,
+              },
+              {
+                label: "Mechanism of action",
+                value: fallbackText(activeMedication?.class, "See prescribing information."),
+              },
+              {
+                label: "Dosage and administration",
+                value: stripSectionNumbering(activeMedication?.dose),
+              },
+              {
+                label: "Side effects",
+                value: "See adverse reactions/warnings in prescribing information.",
               },
               {
                 label: "Monitoring",
-                value: activeMedication?.monitoring,
+                value: fallbackText(activeMedication?.monitoring),
+              },
+              {
+                label: "Renal considerations",
+                value: fallbackText(activeMedication?.renal),
               },
             ].map((item) => (
               <div key={item.label} className="rounded-2xl border border-white/10 p-4">
@@ -130,11 +185,11 @@ export function MedicationLookup() {
               </div>
             ))}
             <div className="rounded-2xl border border-white/10 p-4">
-              <p className="text-xs uppercase tracking-[0.35em] text-white/40">Pearls</p>
+              <p className="text-xs uppercase tracking-[0.35em] text-white/40">Patient pearls</p>
               <ul className="mt-2 list-disc space-y-1 pl-4 text-sm text-white/80">
-                {activeMedication?.pearls.map((pearl) => (
+                {(activeMedication?.pearls?.length ? activeMedication.pearls : ["No pearls added yet."]).map((pearl) => (
                   <li key={pearl}>{pearl}</li>
-                       ))}
+                ))}
               </ul>
             </div>
           </div>

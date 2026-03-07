@@ -249,7 +249,11 @@ const curatedRecords: MedicationRecord[] = [
 
 const generatedRecords: MedicationRecord[] = (generatedRaw as MedicationRecord[]).map((item) => ({
   ...item,
-  pearls: item.pearls ?? [],
+  summary: item.summary?.trim() || "Not available yet.",
+  dose: item.dose?.trim() || "Not available yet.",
+  renal: item.renal?.trim() || "Not available yet.",
+  monitoring: item.monitoring?.trim() || "Not available yet.",
+  pearls: item.pearls?.length ? item.pearls : ["No pearls added yet."],
   tags: item.tags ?? [],
   keywords: item.keywords ?? [],
 }));
