@@ -247,16 +247,34 @@ const curatedRecords: MedicationRecord[] = [
   },
 ];
 
-const generatedRecords: MedicationRecord[] = (generatedRaw as MedicationRecord[]).map((item) => ({
-  ...item,
-  summary: item.summary?.trim() || "Not available yet.",
-  dose: item.dose?.trim() || "Not available yet.",
-  renal: item.renal?.trim() || "Not available yet.",
-  monitoring: item.monitoring?.trim() || "Not available yet.",
-  pearls: item.pearls?.length ? item.pearls : ["No pearls added yet."],
-  tags: item.tags ?? [],
-  keywords: item.keywords ?? [],
-}));
+const generatedRecords: MedicationRecord[] = (generatedRaw as MedicationRecord[]).map((item) => {
+  let summary = item.summary?.trim() || "Not available yet.";
+  let dose = item.dose?.trim() || "Not available yet.";
+
+  const looksLikeShortDirection = /^(apply as needed\.?|use as directed\.?|see full prescribing information.*)$/i.test(summary);
+  const looksLikeIndication = /(indication|indicated|treat|relieve|relief|use\(s\)|protect|prevention|management)/i.test(dose);
+  const looksLikeDose = /(mg|mcg|g\b|tablet|capsule|once daily|twice daily|every\s+\d+|dose|administer|take|inject|inhale|instill|topical|oral)/i.test(dose);
+
+  if (looksLikeShortDirection && looksLikeIndication && !looksLikeDose) {
+    const oldSummary = summary;
+    summary = dose;
+    dose = oldSummary;
+  }
+
+  const className = item.class?.trim() || (item.tags?.length ? `${item.tags[0]} agent` : "Not specified in source data.");
+
+  return {
+    ...item,
+    class: className,
+    summary,
+    dose,
+    renal: item.renal?.trim() || "Not available yet.",
+    monitoring: item.monitoring?.trim() || "Not available yet.",
+    pearls: item.pearls?.length ? item.pearls : ["No pearls added yet."],
+    tags: item.tags ?? [],
+    keywords: item.keywords ?? [],
+  };
+});
 
 const mergedBySlug = new Map<string, MedicationRecord>();
 for (const autoRecord of generatedRecords) {

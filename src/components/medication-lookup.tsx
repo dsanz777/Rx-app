@@ -69,6 +69,14 @@ function splitIndicationUsage(text?: string) {
   };
 }
 
+function normalizeForCompare(text?: string) {
+  return (text || "")
+    .toLowerCase()
+    .replace(/\s+/g, " ")
+    .replace(/[.,;:!?]/g, "")
+    .trim();
+}
+
 function deriveSideEffects(monitoring?: string) {
   const cleaned = stripSectionNumbering(monitoring);
   if (!cleaned || cleaned === "Not available yet.") {
@@ -81,13 +89,38 @@ function deriveSideEffects(monitoring?: string) {
     .filter(Boolean);
 
   const candidates = sentences.filter((sentence) =>
-    /(adverse|warning|risk|toxicity|bleed|bleeding|sedation|rash|angioedema|hypoglycemia|infection|nausea|vomit|diarrhea|dizziness|respiratory|serotonin|pancreatitis|myopathy|hepat|renal|kidney|suicid|electrolyte)/i.test(
+    /(adverse|warning|risk|toxicity|bleed|bleeding|sedation|rash|angioedema|hypoglycemia|infection|nausea|vomit|diarrhea|dizziness|respiratory|serotonin|pancreatitis|myopathy|hepat|suicid|allerg)/i.test(
       sentence,
     ),
   );
 
   const selected = (candidates.length ? candidates : sentences).slice(0, 2).join(" ");
   return selected || "Not available yet.";
+}
+
+function deriveMonitoring(monitoring?: string, sideEffects?: string) {
+  const cleaned = stripSectionNumbering(monitoring);
+  if (!cleaned || cleaned === "Not available yet.") {
+    return "Not available yet.";
+  }
+
+  const sentences = cleaned
+    .split(/(?<=[.!?])\s+/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  const monitorSentences = sentences.filter((sentence) =>
+    /(monitor|check|assess|follow|lab|blood pressure|bp|inr|a1c|renal function|kidney function|creatinine|electrolyte|cbc|lft)/i.test(
+      sentence,
+    ),
+  );
+
+  const monitoringText = (monitorSentences.length ? monitorSentences : sentences).slice(0, 2).join(" ");
+  if (!monitoringText) return "Not available yet.";
+  if (normalizeForCompare(monitoringText) === normalizeForCompare(sideEffects)) {
+    return "Monitor per prescribing guidance and clinical response.";
+  }
+  return monitoringText;
 }
 
 export function MedicationLookup() {
@@ -111,6 +144,12 @@ export function MedicationLookup() {
 
   const indicationUsage = splitIndicationUsage(activeMedication?.summary);
   const sideEffects = deriveSideEffects(activeMedication?.monitoring);
+  const monitoringText = deriveMonitoring(activeMedication?.monitoring, sideEffects);
+  const mechanism = `Drug class: ${fallbackText(activeMedication?.class, "Not specified in source data.")}`;
+  const usageText =
+    normalizeForCompare(indicationUsage.usage) === normalizeForCompare(indicationUsage.indication)
+      ? "Clinical use details are covered in Dosage and administration below."
+      : indicationUsage.usage;
   const hasResults = sortedRecords.length > 0;
   const hasSelectedMedication = Boolean(activeMedication);
   return (
@@ -178,11 +217,11 @@ export function MedicationLookup() {
               },
               {
                 label: "Usage",
-                value: indicationUsage.usage,
+                value: usageText,
               },
               {
                 label: "Mechanism of action",
-                value: fallbackText(activeMedication?.class, "See prescribing information."),
+                value: mechanism,
               },
               {
                 label: "Dosage and administration",
@@ -194,7 +233,7 @@ export function MedicationLookup() {
               },
               {
                 label: "Monitoring",
-                value: fallbackText(activeMedication?.monitoring),
+                value: monitoringText,
               },
               {
                 label: "Renal considerations",
