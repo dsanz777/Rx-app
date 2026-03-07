@@ -127,7 +127,7 @@ export function MedicationLookup() {
   const indication = normalizeClinicalText(activeMedication?.summary);
   const sideEffects = deriveSideEffects(activeMedication?.monitoring);
   const monitoringText = deriveMonitoring(activeMedication?.monitoring, sideEffects);
-  const mechanism = `Drug class: ${fallbackText(activeMedication?.class, "Not specified in source data.")}`;
+  const mechanism = fallbackText(activeMedication?.class, "Mechanism of action not available.");
   const hasResults = sortedRecords.length > 0;
   const hasSelectedMedication = Boolean(activeMedication);
   return (
