@@ -35,6 +35,10 @@ function stripSectionNumbering(text?: string) {
   return text
     .replace(/^\s*\d+(?:\.\d+)?\s+(INDICATIONS?\s+AND\s+USAGE|DOSAGE\s+AND\s+ADMINISTRATION)\s*/i, "")
     .replace(/^\s*(INDICATIONS?\s+AND\s+USAGE|DOSAGE\s+AND\s+ADMINISTRATION)\s*[:\-]?\s*/i, "")
+    .replace(/\(\s*\d+(?:\.\d+)*\s*\)/g, "")
+    .replace(/\[\s*\d+(?:\.\d+)*\s*\]/g, "")
+    .replace(/(^|\s)\d+(?:\.\d+)+\s+(?=[A-Z])/g, " ")
+    .replace(/\s+([.,;:!?])/g, "$1")
     .replace(/\s{2,}/g, " ")
     .trim();
 }
@@ -43,30 +47,8 @@ function fallbackText(value?: string, fallback = "Not available yet.") {
   return value?.trim() ? value.trim() : fallback;
 }
 
-function splitIndicationUsage(text?: string) {
-  const cleaned = stripSectionNumbering(text);
-  if (!cleaned || cleaned === "Not available yet.") {
-    return {
-      indication: "Not available yet.",
-      usage: "Not available yet.",
-    };
-  }
-
-  const firstSentenceMatch = cleaned.match(/^(.+?[.!?])\s+/);
-  if (!firstSentenceMatch) {
-    return {
-      indication: cleaned,
-      usage: "Clinical use details are covered in Dosage and administration below.",
-    };
-  }
-
-  const indication = firstSentenceMatch[1].trim();
-  const usage = cleaned.slice(firstSentenceMatch[0].length).trim();
-
-  return {
-    indication,
-    usage: usage || "Clinical use details are covered in Dosage and administration below.",
-  };
+function normalizeClinicalText(text?: string) {
+  return stripSectionNumbering(text);
 }
 
 function normalizeForCompare(text?: string) {
@@ -142,14 +124,10 @@ export function MedicationLookup() {
     (item) => item.slug === activeSlug,
   );
 
-  const indicationUsage = splitIndicationUsage(activeMedication?.summary);
+  const indication = normalizeClinicalText(activeMedication?.summary);
   const sideEffects = deriveSideEffects(activeMedication?.monitoring);
   const monitoringText = deriveMonitoring(activeMedication?.monitoring, sideEffects);
   const mechanism = `Drug class: ${fallbackText(activeMedication?.class, "Not specified in source data.")}`;
-  const usageText =
-    normalizeForCompare(indicationUsage.usage) === normalizeForCompare(indicationUsage.indication)
-      ? "Clinical use details are covered in Dosage and administration below."
-      : indicationUsage.usage;
   const hasResults = sortedRecords.length > 0;
   const hasSelectedMedication = Boolean(activeMedication);
   return (
@@ -213,11 +191,7 @@ export function MedicationLookup() {
             {[
               {
                 label: "Indication",
-                value: indicationUsage.indication,
-              },
-              {
-                label: "Usage",
-                value: usageText,
+                value: indication,
               },
               {
                 label: "Mechanism of action",
