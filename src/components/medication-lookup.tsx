@@ -69,6 +69,27 @@ function splitIndicationUsage(text?: string) {
   };
 }
 
+function deriveSideEffects(monitoring?: string) {
+  const cleaned = stripSectionNumbering(monitoring);
+  if (!cleaned || cleaned === "Not available yet.") {
+    return "Not available yet.";
+  }
+
+  const sentences = cleaned
+    .split(/(?<=[.!?])\s+/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  const candidates = sentences.filter((sentence) =>
+    /(adverse|warning|risk|toxicity|bleed|bleeding|sedation|rash|angioedema|hypoglycemia|infection|nausea|vomit|diarrhea|dizziness|respiratory|serotonin|pancreatitis|myopathy|hepat|renal|kidney|suicid|electrolyte)/i.test(
+      sentence,
+    ),
+  );
+
+  const selected = (candidates.length ? candidates : sentences).slice(0, 2).join(" ");
+  return selected || "Not available yet.";
+}
+
 export function MedicationLookup() {
   const [query, setQuery] = useState("");
   const [selectedSlug, setSelectedSlug] = useState<string>("");
@@ -89,6 +110,7 @@ export function MedicationLookup() {
   );
 
   const indicationUsage = splitIndicationUsage(activeMedication?.summary);
+  const sideEffects = deriveSideEffects(activeMedication?.monitoring);
   const hasResults = sortedRecords.length > 0;
   const hasSelectedMedication = Boolean(activeMedication);
   return (
@@ -168,7 +190,7 @@ export function MedicationLookup() {
               },
               {
                 label: "Side effects",
-                value: "See adverse reactions/warnings in prescribing information.",
+                value: sideEffects,
               },
               {
                 label: "Monitoring",
