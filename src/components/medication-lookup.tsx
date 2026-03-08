@@ -127,7 +127,6 @@ export function MedicationLookup() {
   const indication = normalizeClinicalText(activeMedication?.summary);
   const sideEffects = deriveSideEffects(activeMedication?.monitoring);
   const monitoringText = deriveMonitoring(activeMedication?.monitoring, sideEffects);
-  const mechanism = fallbackText(activeMedication?.class, "Mechanism of action not available.");
   const hasResults = sortedRecords.length > 0;
   const hasSelectedMedication = Boolean(activeMedication);
   return (
@@ -186,15 +185,12 @@ export function MedicationLookup() {
         <div className="mt-6 rounded-3xl border border-white/10 bg-black/30 p-6">
           <p className="text-xs uppercase tracking-[0.35em] text-white/40">Details</p>
           <h3 className="mt-2 text-2xl font-semibold text-white">{activeMedication?.name}</h3>
+          <p className="mt-1 text-sm text-white/60">Drug class: {activeMedication?.class}</p>
           <div className="mt-6 grid gap-4 sm:grid-cols-2">
             {[
               {
                 label: "Indication",
                 value: indication,
-              },
-              {
-                label: "Mechanism of action",
-                value: mechanism,
               },
               {
                 label: "Dosage and administration",
