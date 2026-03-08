@@ -247,9 +247,23 @@ const curatedRecords: MedicationRecord[] = [
   },
 ];
 
+function cleanClinicalText(value?: string) {
+  const text = (value || "").trim();
+  if (!text) return "";
+  return text
+    .replace(/^\s*\d+(?:\.\d+)?\s+(INDICATIONS?\s+AND\s+USAGE|DOSAGE\s+AND\s+ADMINISTRATION|PATIENT\s+COUNSELING\s+INFORMATION|USE\s+IN\s+SPECIFIC\s+POPULATIONS)\s*/i, "")
+    .replace(/\(\s*\d+(?:\.\d+)*\s*\)/g, "")
+    .replace(/\[\s*\d+(?:\.\d+)*\s*\]/g, "")
+    .replace(/(^|\s)\d+(?:\.\d+)+\s+(?=[A-Z])/g, " ")
+    .replace(/\b(?:Revised\s+\d{2}\/\d{4})\b/gi, "")
+    .replace(/\s+([.,;:!?])/g, "$1")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
+
 const generatedRecords: MedicationRecord[] = (generatedRaw as MedicationRecord[]).map((item) => {
-  let summary = item.summary?.trim() || "Not available yet.";
-  let dose = item.dose?.trim() || "Not available yet.";
+  let summary = cleanClinicalText(item.summary) || "Not available yet.";
+  let dose = cleanClinicalText(item.dose) || "Not available yet.";
 
   const looksLikeShortDirection = /^(apply as needed\.?|use as directed\.?|see full prescribing information.*)$/i.test(summary);
   const looksLikeIndication = /(indication|indicated|treat|relieve|relief|use\(s\)|protect|prevention|management)/i.test(dose);
@@ -268,9 +282,11 @@ const generatedRecords: MedicationRecord[] = (generatedRaw as MedicationRecord[]
     class: className,
     summary,
     dose,
-    renal: item.renal?.trim() || "Not available yet.",
-    monitoring: item.monitoring?.trim() || "Not available yet.",
-    pearls: item.pearls?.length ? item.pearls : ["No pearls added yet."],
+    renal: cleanClinicalText(item.renal) || "Not available yet.",
+    monitoring: cleanClinicalText(item.monitoring) || "Not available yet.",
+    pearls: item.pearls?.length
+      ? item.pearls.map((p) => cleanClinicalText(p)).filter(Boolean)
+      : ["No pearls added yet."],
     tags: item.tags ?? [],
     keywords: item.keywords ?? [],
   };
