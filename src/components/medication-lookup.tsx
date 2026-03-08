@@ -186,7 +186,6 @@ export function MedicationLookup() {
         <div className="mt-6 rounded-3xl border border-white/10 bg-black/30 p-6">
           <p className="text-xs uppercase tracking-[0.35em] text-white/40">Details</p>
           <h3 className="mt-2 text-2xl font-semibold text-white">{activeMedication?.name}</h3>
-          <p className="text-sm uppercase tracking-[0.35em] text-white/40">{activeMedication?.class}</p>
           <div className="mt-6 grid gap-4 sm:grid-cols-2">
             {[
               {
