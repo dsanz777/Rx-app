@@ -105,6 +105,21 @@ function deriveMonitoring(monitoring?: string, sideEffects?: string) {
   return monitoringText;
 }
 
+function normalizeDrugClass(text?: string) {
+  const cleaned = (text || "").trim();
+  if (!cleaned) return "Not available yet.";
+
+  if (/^mechanism involves target-specific pharmacologic activity/i.test(cleaned)) {
+    return "Not available yet.";
+  }
+
+  return cleaned
+    .replace(/^acts primarily via\s+/i, "")
+    .replace(/\s+mechanism\.?$/i, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
+
 export function MedicationLookup() {
   const [query, setQuery] = useState("");
   const [selectedSlug, setSelectedSlug] = useState<string>("");
@@ -185,7 +200,7 @@ export function MedicationLookup() {
         <div className="mt-6 rounded-3xl border border-white/10 bg-black/30 p-6">
           <p className="text-xs uppercase tracking-[0.35em] text-white/40">Details</p>
           <h3 className="mt-2 text-2xl font-semibold text-white">{activeMedication?.name}</h3>
-          <p className="mt-1 text-sm text-white/60">Drug class: {activeMedication?.class}</p>
+          <p className="mt-1 text-sm text-white/60">Drug class: {normalizeDrugClass(activeMedication?.class)}</p>
           <div className="mt-6 grid gap-4 sm:grid-cols-2">
             {[
               {
