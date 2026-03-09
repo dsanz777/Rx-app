@@ -11,6 +11,12 @@ const severityRank: Record<string, number> = {
   unknown: 6,
 };
 
+function pairKey(drugs: string[] | undefined) {
+  const normalized = (drugs ?? []).map((item) => item.trim().toLowerCase()).filter(Boolean).sort();
+  if (normalized.length !== 2) return "";
+  return `${normalized[0]}|${normalized[1]}`;
+}
+
 type AiInteraction = {
   drugs: string[];
   severity: string;
@@ -24,8 +30,20 @@ type AiResponse = {
 
 function formatDescription(entry: AiInteraction) {
   const segments: string[] = [];
-  if (entry.mechanism) segments.push(`Mechanism: ${entry.mechanism}`);
-  if (entry.management) segments.push(`Plan: ${entry.management}`);
+  const mechanism = (entry.mechanism ?? "").trim();
+  const management = (entry.management ?? "").trim();
+  if (
+    mechanism &&
+    !/no known significant|no interaction|none identified|not clinically significant/i.test(mechanism)
+  ) {
+    segments.push(`Mechanism: ${mechanism}`);
+  }
+  if (
+    management &&
+    !/no specific management required|no management required|none required|routine care only/i.test(management)
+  ) {
+    segments.push(`Plan: ${management}`);
+  }
   if (!segments.length) segments.push("No narrative provided.");
   return segments.join(" ");
 }
@@ -84,8 +102,9 @@ export async function POST(request: Request) {
 
     const systemPrompt = `You are a board-certified clinical pharmacist generating deterministic interaction checks.
 Return structured JSON ONLY.
-For every medication pair you are given, you must output an entry—even if no clinically significant interaction exists.
-Severity options: "major", "moderate", "minor", "monitor" (for low-level or lab/watch situations), or "none" when no interaction is known.
+Only output entries when there is a clinically meaningful interaction worth surfacing.
+Severity options: "major", "moderate", "minor", or "monitor" (for low-level or lab/watch situations).
+Do NOT output a "none" entry.
 Mechanism should summarize the pharmacology/PK/PD issue.
 Management should describe monitoring or mitigation steps.
 Cite authoritative guidance in-line (guideline name, labeling, primary literature) but do not include URLs.`;
@@ -99,7 +118,7 @@ Return JSON exactly in this shape (no prose):
   "interactions": [
     {
       "drugs": ["Drug A", "Drug B"],
-      "severity": "major|moderate|minor|monitor|none",
+      "severity": "major|moderate|minor|monitor",
       "mechanism": "...",
       "management": "..."
     }
@@ -126,14 +145,33 @@ Return JSON exactly in this shape (no prose):
       throw new Error("Unable to parse AI response");
     }
 
+    const deduped = new Map<string, { severity: string; description: string; drugs: string[] }>();
+
     const interactions = parsed.interactions
       .filter((entry) => Array.isArray(entry.drugs) && entry.drugs.length === 2)
+      .filter((entry) => !/^(none|unknown)$/i.test((entry.severity ?? "").trim()))
       .map((entry) => ({
         severity: (entry.severity ?? "unknown").toLowerCase(),
         description: formatDescription(entry),
         drugs: entry.drugs,
       }))
-      .sort((a, b) => (severityRank[a.severity] ?? 99) - (severityRank[b.severity] ?? 99));
+      .filter((entry) => entry.description !== "No narrative provided.")
+      .sort((a, b) => (severityRank[a.severity] ?? 99) - (severityRank[b.severity] ?? 99))
+      .filter((entry) => {
+        const key = pairKey(entry.drugs);
+        if (!key) return false;
+        const existing = deduped.get(key);
+        if (!existing) {
+          deduped.set(key, entry);
+          return true;
+        }
+        const existingRank = severityRank[existing.severity] ?? 99;
+        const nextRank = severityRank[entry.severity] ?? 99;
+        if (nextRank < existingRank) {
+          deduped.set(key, entry);
+        }
+        return false;
+      });
 
     return NextResponse.json({
       interactions,

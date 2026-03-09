@@ -2,6 +2,7 @@
 
 import { FormEvent, useMemo, useState } from "react";
 import { medicationDataset } from "@/data/medications";
+import { DetailCard, Panel, SectionEyebrow } from "@/components/ui/surfaces";
 
 type InteractionResult = {
   severity: string;
@@ -24,28 +25,51 @@ type ApiResponse = {
 type ApiError = {
   error?: string;
 };
-const suggestionNames = (() => {
-  const tokens = new Set<string>();
 
-  medicationDataset.forEach((item) => {
+const normalize = (value: string) => value.trim().toLowerCase();
+
+function parseInteractionError(payload: unknown): string {
+  if (!payload || typeof payload !== "object") return "Interaction check failed";
+  const maybeError = (payload as ApiError).error;
+  return typeof maybeError === "string" && maybeError ? maybeError : "Interaction check failed";
+}
+
+type SuggestionEntry = {
+  label: string;
+  slug: string;
+};
+
+const suggestionEntries = (() => {
+  const entries: SuggestionEntry[] = [];
+  const seen = new Set<string>();
+
+  for (const item of medicationDataset) {
+    const variants = new Set<string>();
     const base = item.name.replace(/\(.*?\)/g, "").trim();
-    tokens.add(item.name);
-    if (base && base !== item.name) tokens.add(base);
-
-    const slugName = item.slug.replace(/-/g, " ");
-    tokens.add(slugName);
+    variants.add(item.name);
+    if (base && base !== item.name) variants.add(base);
+    variants.add(item.slug.replace(/-/g, " "));
 
     const parenMatches = item.name.match(/\(([^)]+)\)/);
     if (parenMatches) {
       parenMatches[1]
-        .split(/[\/,&]|\band\b/i)
-        .map((token) => token.replace(/[+]/g, "+").trim())
+        .split(/[/,&]|\band\b/i)
+        .map((token) => token.trim())
         .filter(Boolean)
-        .forEach((token) => tokens.add(token));
+        .forEach((token) => variants.add(token));
     }
-  });
 
-  return Array.from(tokens).filter(Boolean);
+    for (const variant of variants) {
+      const normalized = normalize(variant);
+      if (!normalized) continue;
+      const key = `${item.slug}|${normalized}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      entries.push({ label: variant, slug: item.slug });
+    }
+  }
+
+  return entries;
 })();
 
 const dropdownMedicationNames = Array.from(new Set(medicationDataset.map((item) => item.name))).sort(
@@ -62,24 +86,42 @@ export function InteractionFlags() {
   const [error, setError] = useState<string | null>(null);
 
   const suggestions = useMemo(() => {
-    if (!query.trim()) return [];
-    const normalized = query.toLowerCase();
-    return suggestionNames
-      .filter((name) => name.toLowerCase().includes(normalized))
-      .slice(0, 8);
+    const normalizedQuery = normalize(query);
+    if (!normalizedQuery) return [];
+
+    const seenSlugs = new Set<string>();
+    const out: SuggestionEntry[] = [];
+    for (const entry of suggestionEntries) {
+      if (!normalize(entry.label).includes(normalizedQuery)) continue;
+      if (seenSlugs.has(entry.slug)) continue;
+      seenSlugs.add(entry.slug);
+      out.push(entry);
+      if (out.length >= 8) break;
+    }
+    return out;
   }, [query]);
 
   const addMedication = (name: string) => {
     const trimmed = name.trim();
     if (!trimmed) return;
 
-    const exists = selected.some((item) => item.toLowerCase() === trimmed.toLowerCase());
+    const exact = suggestionEntries.find((entry) => normalize(entry.label) === normalize(trimmed));
+    const matchedSlug = exact?.slug ?? medicationDataset.find((item) => normalize(item.name) === normalize(trimmed))?.slug;
+    const matchedLabel = matchedSlug
+      ? medicationDataset.find((item) => item.slug === matchedSlug)?.name ?? trimmed
+      : trimmed;
+
+    const exists = selected.some((item) => {
+      const existingSlug = suggestionEntries.find((entry) => normalize(entry.label) === normalize(item))?.slug
+        ?? medicationDataset.find((med) => normalize(med.name) === normalize(item))?.slug;
+      return matchedSlug ? existingSlug === matchedSlug : normalize(item) === normalize(trimmed);
+    });
     if (exists) {
       setQuery("");
       return;
     }
 
-    setSelected((prev) => [...prev, trimmed]);
+    setSelected((prev) => [...prev, matchedLabel]);
     setQuery("");
   };
 
@@ -104,8 +146,7 @@ export function InteractionFlags() {
       });
 
       if (!response.ok) {
-        const data = (await response.json()) as ApiError;
-        throw new Error(data.error ?? "Interaction check failed");
+        throw new Error(parseInteractionError(await response.json()));
       }
 
       const data = (await response.json()) as ApiResponse;
@@ -113,15 +154,14 @@ export function InteractionFlags() {
       setSourceMeta(data.source ?? null);
       setStatus("idle");
     } catch (err) {
-      console.error(err);
       setError((err as Error).message ?? "Interaction check failed");
       setStatus("error");
     }
   };
 
   return (
-    <div id="interaction-radar" className="rounded-3xl border border-white/5 bg-black/30 p-6">
-      <p className="text-xs uppercase tracking-[0.4em] text-white/50">Interaction flags</p>
+    <Panel id="interaction-radar">
+      <SectionEyebrow>Interaction flags</SectionEyebrow>
       <p className="mt-2 text-sm text-white/70">
         Results are AI-generated and not medical advice. Consult a healthcare professional.
       </p>
@@ -139,14 +179,14 @@ export function InteractionFlags() {
               />
               {suggestions.length > 0 && (
                 <div className="absolute left-0 right-0 top-full z-10 mt-1 max-h-48 overflow-y-auto rounded-2xl border border-white/10 bg-black/90 text-sm text-white">
-                  {suggestions.map((name) => (
+                  {suggestions.map((entry) => (
                     <button
-                      key={name}
+                      key={`${entry.slug}:${entry.label}`}
                       type="button"
-                      onClick={() => addMedication(name)}
+                      onClick={() => addMedication(entry.label)}
                       className="block w-full px-4 py-2 text-left hover:bg-white/10"
                     >
-                      {name}
+                      {entry.label}
                     </button>
                   ))}
                 </div>
@@ -219,15 +259,10 @@ export function InteractionFlags() {
 
       {results && (
         <div className="mt-4 space-y-3">
-          {results.length === 0 && (
-            <div className="rounded-2xl border border-white/10 bg-black/20 p-4 text-sm text-white/70">
-              No major or moderate interactions detected.
-            </div>
-          )}
-          {results.map((result, index) => (
-            <div
-              key={`${result.severity}-${index}`}
-              className="rounded-2xl border border-white/10 bg-black/40 p-4"
+          {results.map((result) => (
+            <DetailCard
+              key={`${result.severity}-${result.description}-${result.drugs?.join(",") ?? "none"}`}
+              className="bg-black/40"
             >
               <p className="text-xs uppercase tracking-[0.3em] text-white/50">
                 {result.severity} interaction
@@ -236,7 +271,7 @@ export function InteractionFlags() {
               {result.drugs?.length ? (
                 <p className="mt-2 text-xs text-white/50">{result.drugs.join(" + ")}</p>
               ) : null}
-            </div>
+            </DetailCard>
           ))}
           {sourceMeta && (
             <p className="text-[11px] text-white/40">
@@ -260,6 +295,6 @@ export function InteractionFlags() {
           )}
         </div>
       )}
-    </div>
+    </Panel>
   );
 }

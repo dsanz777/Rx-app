@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "[pre-commit] Running medication quality harness..."
+npm run -s harness:rx
+echo "[pre-commit] PASS"

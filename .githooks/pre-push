@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "[pre-push] Running full harness (quality + production build)..."
+npm run -s harness:all
+echo "[pre-push] PASS"

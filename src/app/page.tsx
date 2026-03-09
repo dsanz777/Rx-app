@@ -77,13 +77,25 @@ export default async function Home() {
                   href="#snapshot"
                   className="rounded-full border border-white/20 bg-black/60 px-5 py-3 font-medium text-white transition hover:text-[var(--accent)]"
                 >
-                  View Today's Brief
+                  View Today&apos;s Brief
                 </a>
                 <a
                   href="#consult"
                   className="rounded-full border border-white/20 px-5 py-3 font-medium text-white/80 transition hover:text-white"
                 >
                   Schedule a Consult
+                </a>
+                <a
+                  href="/toolkits/medication-cost-savings"
+                  className="rounded-full border border-white/20 px-5 py-3 font-medium text-white/80 transition hover:text-white"
+                >
+                  Cost-Savings Toolkit
+                </a>
+                <a
+                  href="/pricing"
+                  className="rounded-full border border-white/20 px-5 py-3 font-medium text-white/80 transition hover:text-white"
+                >
+                  Licensing & Pricing
                 </a>
               </div>
               <div className="grid gap-4 lg:grid-cols-3">
@@ -152,7 +164,7 @@ export default async function Home() {
 
         <section className="rounded-3xl border border-white/5 bg-white/5 p-6">
           <p className="text-xs uppercase tracking-[0.4em] text-white/50">Education hub</p>
-          <div className="mt-4 grid gap-4 sm:grid-cols-3">
+          <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {playbookDocs.map((item) => (
               <a
                 key={item.title}
@@ -166,12 +178,51 @@ export default async function Home() {
           </div>
         </section>
 
+        <section className="rounded-3xl border border-white/5 bg-white/5 p-6">
+          <p className="text-xs uppercase tracking-[0.4em] text-white/50">Licensing</p>
+          <div className="mt-4 grid gap-6 lg:grid-cols-[2fr,1fr]">
+            <div className="space-y-3 text-sm text-white/80">
+              <p className="text-lg font-semibold text-white">Enterprise-ready clinical content engine</p>
+              <p>
+                This platform can be licensed to provider groups, digital health companies, payers, and
+                pharmacy organizations that need medication intelligence + disease education in one product.
+              </p>
+              <ul className="list-disc space-y-1 pl-5">
+                <li>White-label disease playbooks for patient and provider education</li>
+                <li>Medication lookup with class/MOA, dosing, monitoring, and renal considerations</li>
+                <li>Interaction workflow designed for fast clinical triage and safer prescribing</li>
+                <li>Configurable deployment for private-clinic, enterprise, or payer environments</li>
+              </ul>
+            </div>
+            <div className="rounded-2xl border border-white/10 bg-black/30 p-4 text-sm">
+              <p className="font-semibold text-white">Commercial next steps</p>
+              <ol className="mt-2 list-decimal space-y-1 pl-5 text-white/75">
+                <li>Package this as per-seat + per-site licensing</li>
+                <li>Add client-specific branding and formulary overlays</li>
+                <li>Pilot with 1-2 practices and capture outcomes</li>
+                <li>Publish a case study to support enterprise sales</li>
+              </ol>
+              <a
+                href="/pricing"
+                className="mt-4 inline-block rounded-full border border-white/20 px-4 py-2 text-xs uppercase tracking-[0.25em] text-white/80 transition hover:text-white"
+              >
+                Discuss Licensing
+              </a>
+            </div>
+          </div>
+        </section>
+
         <footer className="rounded-3xl border border-white/10 bg-black/50 p-6 text-sm text-white/60">
           <p>© {new Date().getFullYear()} Derek Sanz.</p>
           <p className="mt-1">Concierge pharmacy + daily brief for value-based operators.</p>
+          <div className="mt-3 flex flex-wrap gap-4 text-xs uppercase tracking-[0.25em] text-white/50">
+            <a href="/pricing" className="transition hover:text-white">Pricing</a>
+            <a href="/privacy" className="transition hover:text-white">Privacy</a>
+            <a href="/terms" className="transition hover:text-white">Terms</a>
+          </div>
         </footer>
       </div>
     </main>
   );
 }
-export const dynamic = 'force-dynamic';
+export const revalidate = 86400;

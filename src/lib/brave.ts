@@ -151,7 +151,7 @@ async function tryFetch(query: string, apiKey: string, freshness: "pd" | "pw") {
       Accept: "application/json",
       "X-Subscription-Token": apiKey,
     },
-    cache: "no-store",
+    next: { revalidate: 86400 },
   });
 
   console.log(`[Brave] ${query} freshness=${freshness} status=${response.status}`);
@@ -180,7 +180,7 @@ async function fetchSection(config: SectionConfig) {
 
   for (const query of queries) {
     let bucket: Headline[] = [];
-    for (const freshness of ["pd", "pw"] as const) {
+    for (const freshness of ["pd"] as const) {
       try {
         const headlines = filterHeadlines(await tryFetch(query, apiKey, freshness), include, exclude);
         if (headlines.length) {

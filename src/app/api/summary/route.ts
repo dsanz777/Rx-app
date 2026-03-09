@@ -1,5 +1,6 @@
-import { NextResponse } from "next/server";
+import { NextResponse } from 'next/server';
 
 export async function GET() {
-  return NextResponse.json({ message: "Summary endpoint working" });
+  // Add your summary logic here if needed
+  return NextResponse.json({ message: 'Summary endpoint working' });
 }

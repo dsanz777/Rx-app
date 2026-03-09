@@ -1,16 +1,22 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { medicationDataset, type MedicationRecord } from "@/data/medications";
+import {
+  medicationDataset,
+  medicationDatasetVersion,
+  type MedicationRecord,
+} from "@/data/medications";
 
 const searchIndex = medicationDataset.map((item) => ({
   slug: item.slug,
   blob: [
     item.name,
     item.class,
+    item.mechanism,
     item.summary,
     item.dose,
     item.renal,
+    item.sideEffects,
     item.monitoring,
     ...item.pearls,
     ...item.keywords,
@@ -27,96 +33,6 @@ function filterRecords(query: string) {
   }
 
   return medicationDataset.filter((_, idx) => searchIndex[idx].blob.includes(normalizedQuery));
-}
-
-function stripSectionNumbering(text?: string) {
-  if (!text?.trim()) return "Not available yet.";
-
-  return text
-    .replace(/^\s*\d+(?:\.\d+)?\s+(INDICATIONS?\s+AND\s+USAGE|DOSAGE\s+AND\s+ADMINISTRATION)\s*/i, "")
-    .replace(/^\s*(INDICATIONS?\s+AND\s+USAGE|DOSAGE\s+AND\s+ADMINISTRATION)\s*[:\-]?\s*/i, "")
-    .replace(/\(\s*\d+(?:\.\d+)*\s*\)/g, "")
-    .replace(/\[\s*\d+(?:\.\d+)*\s*\]/g, "")
-    .replace(/(^|\s)\d+(?:\.\d+)+\s+(?=[A-Z])/g, " ")
-    .replace(/\s+([.,;:!?])/g, "$1")
-    .replace(/\s{2,}/g, " ")
-    .trim();
-}
-
-function fallbackText(value?: string, fallback = "Not available yet.") {
-  return value?.trim() ? value.trim() : fallback;
-}
-
-function normalizeClinicalText(text?: string) {
-  return stripSectionNumbering(text);
-}
-
-function normalizeForCompare(text?: string) {
-  return (text || "")
-    .toLowerCase()
-    .replace(/\s+/g, " ")
-    .replace(/[.,;:!?]/g, "")
-    .trim();
-}
-
-function deriveSideEffects(monitoring?: string) {
-  const cleaned = stripSectionNumbering(monitoring);
-  if (!cleaned || cleaned === "Not available yet.") {
-    return "Not available yet.";
-  }
-
-  const sentences = cleaned
-    .split(/(?<=[.!?])\s+/)
-    .map((s) => s.trim())
-    .filter(Boolean);
-
-  const candidates = sentences.filter((sentence) =>
-    /(adverse|warning|risk|toxicity|bleed|bleeding|sedation|rash|angioedema|hypoglycemia|infection|nausea|vomit|diarrhea|dizziness|respiratory|serotonin|pancreatitis|myopathy|hepat|suicid|allerg)/i.test(
-      sentence,
-    ),
-  );
-
-  const selected = (candidates.length ? candidates : sentences).slice(0, 2).join(" ");
-  return selected || "Not available yet.";
-}
-
-function deriveMonitoring(monitoring?: string, sideEffects?: string) {
-  const cleaned = stripSectionNumbering(monitoring);
-  if (!cleaned || cleaned === "Not available yet.") {
-    return "Not available yet.";
-  }
-
-  const sentences = cleaned
-    .split(/(?<=[.!?])\s+/)
-    .map((s) => s.trim())
-    .filter(Boolean);
-
-  const monitorSentences = sentences.filter((sentence) =>
-    /(monitor|check|assess|follow|lab|blood pressure|bp|inr|a1c|renal function|kidney function|creatinine|electrolyte|cbc|lft)/i.test(
-      sentence,
-    ),
-  );
-
-  const monitoringText = (monitorSentences.length ? monitorSentences : sentences).slice(0, 2).join(" ");
-  if (!monitoringText) return "Not available yet.";
-  if (normalizeForCompare(monitoringText) === normalizeForCompare(sideEffects)) {
-    return "Monitor per prescribing guidance and clinical response.";
-  }
-  return monitoringText;
-}
-
-function normalizeDrugClass(text?: string) {
-  const cleaned = (text || "").trim();
-  if (!cleaned) return "Not available yet.";
-
-  if (
-    /^mechanism involves target-specific pharmacologic activity/i.test(cleaned) ||
-    /\b(acts primarily via|mechanism|inhibits?|agonist|antagonist|blocks?|reducing|stimulation)\b/i.test(cleaned)
-  ) {
-    return "Not available yet.";
-  }
-
-  return cleaned.replace(/\s{2,}/g, " ").trim();
 }
 
 export function MedicationLookup() {
@@ -138,20 +54,17 @@ export function MedicationLookup() {
     (item) => item.slug === activeSlug,
   );
 
-  const indication = normalizeClinicalText(activeMedication?.summary);
-  const sideEffects = deriveSideEffects(activeMedication?.monitoring);
-  const monitoringText = deriveMonitoring(activeMedication?.monitoring, sideEffects);
   const hasResults = sortedRecords.length > 0;
-  const hasSelectedMedication = Boolean(activeMedication);
+  const hasSelection = Boolean(activeMedication);
+  const showPearls = (activeMedication?.pearls?.length ?? 0) > 0;
+
   return (
     <div className="rounded-3xl border border-white/5 bg-white/5 p-6">
       <div className="flex flex-wrap items-center justify-between gap-4 text-xs uppercase tracking-[0.4em] text-white/50">
         <span>Medication lookup</span>
-        <span>Live dataset</span>
+        <span>Live dataset · {medicationDatasetVersion}</span>
       </div>
-      <p className="mt-2 text-sm text-white/70">
-        Information is for reference only and not medical advice. Consult a healthcare professional.
-      </p>
+
       <div className="mt-6 flex flex-col gap-4">
         <label className="flex items-center gap-3 rounded-full border border-white/10 bg-black/30 px-4 py-3 text-sm text-white/80">
           <span className="text-white/40">Search</span>
@@ -159,7 +72,7 @@ export function MedicationLookup() {
             type="search"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="GLP-1, DOAC, renal, etc."
+            placeholder=""
             className="flex-1 bg-transparent text-white placeholder:text-white/40 focus:outline-none"
           />
         </label>
@@ -167,12 +80,12 @@ export function MedicationLookup() {
         <label className="flex flex-col gap-2 text-xs uppercase tracking-[0.35em] text-white/40">
           Select medication
           <select
-            value={selectedSlug}
+            value={activeSlug || ""}
             onChange={(event) => setSelectedSlug(event.target.value)}
             className="w-full rounded-2xl border border-white/15 bg-black/40 px-4 py-3 text-base font-medium normal-case tracking-normal text-white focus:border-[var(--accent)] focus:outline-none"
           >
             <option value="" className="text-black">
-              -- Select a medication --
+              Choose a medication...
             </option>
             {sortedRecords.map((item) => (
               <option key={item.slug} value={item.slug} className="text-black">
@@ -191,36 +104,43 @@ export function MedicationLookup() {
         <div className="mt-6 rounded-3xl border border-white/10 bg-black/30 p-6 text-sm text-white/70">
           No match yet. Try a drug name, class, or renal keyword.
         </div>
-      ) : !hasSelectedMedication ? (
+      ) : !hasSelection ? (
         <div className="mt-6 rounded-3xl border border-white/10 bg-black/30 p-6 text-sm text-white/70">
-          Select a medication to view details.
+          Select a medication to view class, mechanism, dosing, monitoring, and pearls.
         </div>
       ) : (
         <div className="mt-6 rounded-3xl border border-white/10 bg-black/30 p-6">
           <p className="text-xs uppercase tracking-[0.35em] text-white/40">Details</p>
           <h3 className="mt-2 text-2xl font-semibold text-white">{activeMedication?.name}</h3>
-          <p className="mt-1 text-sm text-white/60">Drug class: {normalizeDrugClass(activeMedication?.class)}</p>
+          <p className="mt-2 text-sm text-white/80">
+            <span className="font-semibold text-white">Drug class:</span> {activeMedication?.class}
+          </p>
+          <p className="mt-1 text-sm text-white/80">
+            <span className="font-semibold text-white">Mechanism of action:</span>{" "}
+            {activeMedication?.mechanism}
+          </p>
+
           <div className="mt-6 grid gap-4 sm:grid-cols-2">
             {[
               {
                 label: "Indication",
-                value: indication,
+                value: activeMedication?.summary,
               },
               {
-                label: "Dosage and administration",
-                value: stripSectionNumbering(activeMedication?.dose),
+                label: "Dosage and Administration",
+                value: activeMedication?.dose,
               },
               {
-                label: "Side effects",
-                value: sideEffects,
+                label: "Side Effects",
+                value: activeMedication?.sideEffects,
               },
               {
                 label: "Monitoring",
-                value: monitoringText,
+                value: activeMedication?.monitoring,
               },
               {
-                label: "Renal considerations",
-                value: fallbackText(activeMedication?.renal),
+                label: "Renal Considerations",
+                value: activeMedication?.renal,
               },
             ].map((item) => (
               <div key={item.label} className="rounded-2xl border border-white/10 p-4">
@@ -228,14 +148,16 @@ export function MedicationLookup() {
                 <p className="mt-2 text-sm text-white/80">{item.value}</p>
               </div>
             ))}
-            <div className="rounded-2xl border border-white/10 p-4">
-              <p className="text-xs uppercase tracking-[0.35em] text-white/40">Patient pearls</p>
-              <ul className="mt-2 list-disc space-y-1 pl-4 text-sm text-white/80">
-                {(activeMedication?.pearls?.length ? activeMedication.pearls : ["No pearls added yet."]).map((pearl) => (
-                  <li key={pearl}>{pearl}</li>
-                ))}
-              </ul>
-            </div>
+            {showPearls ? (
+              <div className="rounded-2xl border border-white/10 p-4">
+                <p className="text-xs uppercase tracking-[0.35em] text-white/40">Patient Pearls</p>
+                <ul className="mt-2 list-disc space-y-1 pl-4 text-sm text-white/80">
+                  {activeMedication?.pearls.map((pearl) => (
+                    <li key={pearl}>{pearl}</li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
           </div>
         </div>
       )}

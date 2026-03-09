@@ -13,9 +13,11 @@ export type MedicationRecord = {
   slug: string;
   name: string;
   class: string;
+  mechanism: string;
   summary: string;
   dose: string;
   renal: string;
+  sideEffects: string;
   monitoring: string;
   pearls: string[];
   tags: string[];
@@ -225,13 +227,13 @@ function buildRecord(source: TopDrug, label: OpenFdaLabel | null): MedicationRec
   const summary =
     selectText(label, ["indications_and_usage", "description"]) ||
     `Review prescribing info for ${titleCase(source.generic)}.`;
+  const mechanism = inferMechanism(label);
   const dosing =
     selectText(label, ["dosage_and_administration", "dosage_forms_and_strengths"]) ||
     "See full prescribing information for dosing details.";
   const renal = pickRenal(label) || "No renal guidance found in the fetched label.";
-  const monitoring =
-    selectText(label, ["warnings_and_precautions", "warnings", "precautions"]) ||
-    "Monitor per standard of care when initiating or adjusting therapy.";
+  const sideEffects = inferSideEffects(label);
+  const monitoring = inferMonitoring(label);
   const pearls = buildPearls(label);
   const tags = buildTags(source.drugClass, source.schedule);
   const keywords = buildKeywords(source.generic, source.brand, source.drugClass, tags);
@@ -240,14 +242,44 @@ function buildRecord(source: TopDrug, label: OpenFdaLabel | null): MedicationRec
     slug,
     name: displayName,
     class: source.drugClass || "",
+    mechanism,
     summary,
     dose: dosing,
     renal,
+    sideEffects,
     monitoring,
     pearls,
     tags,
     keywords,
   };
+}
+
+function inferMechanism(label: OpenFdaLabel | null) {
+  if (!label) return "";
+  const text =
+    selectText(label, ["clinical_pharmacology", "mechanism_of_action", "description"]) || "";
+  if (!text) return "";
+  return splitSentences(text)[0] || "";
+}
+
+function inferSideEffects(label: OpenFdaLabel | null) {
+  if (!label) return "";
+  return (
+    selectText(label, ["adverse_reactions", "warnings_and_precautions", "boxed_warning"]) || ""
+  );
+}
+
+function inferMonitoring(label: OpenFdaLabel | null) {
+  if (!label) return "";
+  const text =
+    selectText(label, ["warnings_and_precautions", "drug_interactions", "use_in_specific_populations"]) || "";
+  if (!text) return "";
+  const sentences = splitSentences(text).filter((sentence) =>
+    /monitor|assess|check|periodic|baseline|follow-up|cbc|lft|electrolyte|blood pressure|renal/i.test(
+      sentence,
+    ),
+  );
+  return sentences.slice(0, 2).join(" ");
 }
 
 function selectText(label: OpenFdaLabel | null, keys: string[]) {

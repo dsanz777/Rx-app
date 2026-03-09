@@ -14,6 +14,24 @@ npm run dev
 ```
 App runs on http://localhost:3000.
 
+## Harness checks (quality loop)
+Run these before deploys or after medication data updates:
+```bash
+npm run harness:rx
+npm run harness:all
+```
+`harness:rx` enforces medication content quality gates (no placeholder class/MOA/safety text, no label artifacts, no duplicate records).
+
+Install local git gates:
+```bash
+npm run hooks:install
+```
+This sets `core.hooksPath=.githooks`, then:
+- `pre-commit` runs `harness:rx`
+- `pre-push` runs `harness:all`
+
+Deploy/builds are also protected because `prebuild` runs `harness:rx`.
+
 ## Next up
 - Hook hero CTAs to actual brief + calendaring flows
 - Connect AI chat pane to OpenAI with guardrails
