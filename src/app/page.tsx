@@ -22,6 +22,73 @@ const featureCards = [
     body: "Chat with the brief's brain-every response tagged with source + safety disclaimers.",
     href: "#ai-pharmacist",
   },
+  {
+    title: "Nutrition Strategy",
+    body: "Condition-specific nutrition guidance you can use in nurse care workflows.",
+    href: "#nutrition",
+  },
+];
+
+const nutritionProtocols = [
+  {
+    title: "Type 2 Diabetes",
+    focus: "Carb quality, meal consistency, and protein-forward plate design.",
+    actions: [
+      "Use plate method: half non-starchy vegetables, quarter lean protein, quarter high-fiber carbs.",
+      "Target 25–35 g fiber/day and limit sugar-sweetened beverages.",
+      "Pair carb-heavy meals with movement within 30 minutes when feasible.",
+    ],
+  },
+  {
+    title: "Hypertension / HF",
+    focus: "Sodium and volume management with practical shopping substitutions.",
+    actions: [
+      "Limit sodium and avoid excessive intake; for many high-risk patients this is operationalized near 2 g sodium/day when individualized by the care team.",
+      "Prioritize low-sodium proteins and frozen/no-salt-added vegetables.",
+      "Track daily weight and edema symptoms alongside nutrition intake changes.",
+    ],
+  },
+  {
+    title: "CKD Support",
+    focus: "Protein quality and electrolyte-aware dietary planning by CKD stage.",
+    actions: [
+      "Coordinate potassium/phosphorus counseling with latest labs and nephrology plan.",
+      "Use food-first protein quality upgrades before supplement escalation.",
+      "Review OTC products for hidden sodium, potassium, and phosphate additives.",
+    ],
+  },
+  {
+    title: "Weight + Metabolic Risk",
+    focus: "High-satiety meal architecture and behavior-based adherence.",
+    actions: [
+      "Anchor each meal with protein + produce before starch additions.",
+      "Use hunger/fullness scaling to reduce late-night grazing and portion drift.",
+      "Set one measurable 2-week nutrition target and close-loop on progress.",
+    ],
+  },
+];
+
+const nutritionGuidelines = [
+  {
+    title: "ADA Standards of Care in Diabetes (current edition)",
+    note: "Nutrition therapy and cardiometabolic risk reduction framework for diabetes care.",
+    url: "https://professional.diabetes.org/standards-of-care",
+  },
+  {
+    title: "KDIGO 2024 CKD Guideline",
+    note: "CKD nutrition considerations, including sodium and protein context by stage/comorbidity.",
+    url: "https://kdigo.org/wp-content/uploads/2024/03/KDIGO-2024-CKD-Guideline.pdf",
+  },
+  {
+    title: "2022 AHA/ACC/HFSA Heart Failure Guideline",
+    note: "Recommends avoiding excessive sodium intake in stage C heart failure.",
+    url: "https://professional.heart.org/-/media/832EA0F4E73948848612F228F7FA2D35.pdf",
+  },
+  {
+    title: "Dietary Guidelines for Americans",
+    note: "National baseline for healthy eating patterns and long-term risk reduction.",
+    url: "https://www.dietaryguidelines.gov/",
+  },
 ];
 
 function formatRelativeTime(dateInput?: string) {
@@ -151,6 +218,47 @@ export default async function Home() {
         <section id="medication-lookup" className="grid gap-8 lg:grid-cols-[2fr,1fr]">
           <MedicationLookup />
           <InteractionFlags />
+        </section>
+
+        <section id="nutrition" className="rounded-3xl border border-white/5 bg-white/5 p-6">
+          <p className="text-xs uppercase tracking-[0.4em] text-white/50">Nutrition strategy</p>
+          <p className="mt-2 text-sm text-white/70">
+            This section is guideline-aligned for education and care-management workflows; final plans should be individualized by licensed clinicians.
+          </p>
+          <div className="mt-4 grid gap-4 lg:grid-cols-2">
+            {nutritionProtocols.map((item) => (
+              <div key={item.title} className="rounded-2xl border border-white/10 bg-black/30 p-5">
+                <p className="text-sm uppercase tracking-[0.25em] text-white/50">{item.title}</p>
+                <p className="mt-2 text-sm text-white/75">{item.focus}</p>
+                <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-white/80">
+                  {item.actions.map((action) => (
+                    <li key={action}>{action}</li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+          <div className="mt-5 rounded-2xl border border-white/10 bg-black/30 p-4">
+            <p className="text-xs uppercase tracking-[0.35em] text-white/45">Guideline references</p>
+            <ul className="mt-3 space-y-2 text-sm text-white/75">
+              {nutritionGuidelines.map((guideline) => (
+                <li key={guideline.title}>
+                  <a
+                    href={guideline.url}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    className="font-medium text-white underline decoration-dotted underline-offset-4 hover:text-[var(--accent)]"
+                  >
+                    {guideline.title}
+                  </a>
+                  <span className="text-white/65"> — {guideline.note}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <p className="mt-4 text-xs text-white/50">
+            Nutrition guidance is educational support and should be individualized by licensed clinicians for each patient.
+          </p>
         </section>
 
         <section className="grid gap-6 lg:grid-cols-2">
