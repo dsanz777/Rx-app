@@ -109,15 +109,14 @@ function normalizeDrugClass(text?: string) {
   const cleaned = (text || "").trim();
   if (!cleaned) return "Not available yet.";
 
-  if (/^mechanism involves target-specific pharmacologic activity/i.test(cleaned)) {
+  if (
+    /^mechanism involves target-specific pharmacologic activity/i.test(cleaned) ||
+    /\b(acts primarily via|mechanism|inhibits?|agonist|antagonist|blocks?|reducing|stimulation)\b/i.test(cleaned)
+  ) {
     return "Not available yet.";
   }
 
-  return cleaned
-    .replace(/^acts primarily via\s+/i, "")
-    .replace(/\s+mechanism\.?$/i, "")
-    .replace(/\s{2,}/g, " ")
-    .trim();
+  return cleaned.replace(/\s{2,}/g, " ").trim();
 }
 
 export function MedicationLookup() {
