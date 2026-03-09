@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
 import { playbookDocs, getPlaybookBySlug } from "@/data/docs";
+import { addGuidelineLinks } from "@/lib/guideline-links";
 import { renderMarkdown } from "@/lib/markdown";
 
 interface DocPageProps {
@@ -47,7 +48,7 @@ export default async function DocPage({ params }: DocPageProps) {
   }
 
   const markdown = await loadMarkdown(doc.file);
-  const html = await renderMarkdown(markdown);
+  const html = await renderMarkdown(addGuidelineLinks(markdown));
 
   return (
     <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
