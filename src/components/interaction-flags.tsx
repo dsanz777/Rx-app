@@ -34,95 +34,44 @@ function parseInteractionError(payload: unknown): string {
   return typeof maybeError === "string" && maybeError ? maybeError : "Interaction check failed";
 }
 
-type SuggestionEntry = {
-  label: string;
-  slug: string;
-};
-
-const suggestionEntries = (() => {
-  const entries: SuggestionEntry[] = [];
-  const seen = new Set<string>();
-
-  for (const item of medicationDataset) {
-    const variants = new Set<string>();
-    const base = item.name.replace(/\(.*?\)/g, "").trim();
-    variants.add(item.name);
-    if (base && base !== item.name) variants.add(base);
-    variants.add(item.slug.replace(/-/g, " "));
-
-    const parenMatches = item.name.match(/\(([^)]+)\)/);
-    if (parenMatches) {
-      parenMatches[1]
-        .split(/[/,&]|\band\b/i)
-        .map((token) => token.trim())
-        .filter(Boolean)
-        .forEach((token) => variants.add(token));
-    }
-
-    for (const variant of variants) {
-      const normalized = normalize(variant);
-      if (!normalized) continue;
-      const key = `${item.slug}|${normalized}`;
-      if (seen.has(key)) continue;
-      seen.add(key);
-      entries.push({ label: variant, slug: item.slug });
-    }
-  }
-
-  return entries;
-})();
-
 const dropdownMedicationNames = Array.from(new Set(medicationDataset.map((item) => item.name))).sort(
   (a, b) => a.localeCompare(b),
 );
 
 export function InteractionFlags() {
   const [query, setQuery] = useState("");
-  const [selectedDropdown, setSelectedDropdown] = useState<string>(dropdownMedicationNames[0] ?? "");
+  const [selectedDropdown, setSelectedDropdown] = useState<string>("");
   const [selected, setSelected] = useState<string[]>([]);
   const [results, setResults] = useState<InteractionResult[] | null>(null);
   const [sourceMeta, setSourceMeta] = useState<SourceMeta | null>(null);
   const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
 
-  const suggestions = useMemo(() => {
+  const filteredDropdownNames = useMemo(() => {
     const normalizedQuery = normalize(query);
-    if (!normalizedQuery) return [];
-
-    const seenSlugs = new Set<string>();
-    const out: SuggestionEntry[] = [];
-    for (const entry of suggestionEntries) {
-      if (!normalize(entry.label).includes(normalizedQuery)) continue;
-      if (seenSlugs.has(entry.slug)) continue;
-      seenSlugs.add(entry.slug);
-      out.push(entry);
-      if (out.length >= 8) break;
-    }
-    return out;
+    if (!normalizedQuery) return dropdownMedicationNames;
+    return dropdownMedicationNames.filter((name) => normalize(name).includes(normalizedQuery));
   }, [query]);
 
   const addMedication = (name: string) => {
     const trimmed = name.trim();
     if (!trimmed) return;
 
-    const exact = suggestionEntries.find((entry) => normalize(entry.label) === normalize(trimmed));
-    const matchedSlug = exact?.slug ?? medicationDataset.find((item) => normalize(item.name) === normalize(trimmed))?.slug;
+    const matchedSlug = medicationDataset.find((item) => normalize(item.name) === normalize(trimmed))?.slug;
     const matchedLabel = matchedSlug
       ? medicationDataset.find((item) => item.slug === matchedSlug)?.name ?? trimmed
       : trimmed;
 
     const exists = selected.some((item) => {
-      const existingSlug = suggestionEntries.find((entry) => normalize(entry.label) === normalize(item))?.slug
-        ?? medicationDataset.find((med) => normalize(med.name) === normalize(item))?.slug;
+      const existingSlug = medicationDataset.find((med) => normalize(med.name) === normalize(item))?.slug;
       return matchedSlug ? existingSlug === matchedSlug : normalize(item) === normalize(trimmed);
     });
     if (exists) {
-      setQuery("");
       return;
     }
 
     setSelected((prev) => [...prev, matchedLabel]);
-    setQuery("");
+    setSelectedDropdown("");
   };
 
   const removeMedication = (name: string) => {
@@ -166,64 +115,44 @@ export function InteractionFlags() {
         Results are AI-generated and not medical advice. Consult a healthcare professional.
       </p>
       <form onSubmit={handleSubmit} className="mt-4 space-y-4">
-        <div className="flex flex-col gap-2">
-          <label className="text-xs uppercase tracking-[0.3em] text-white/40">Add medication</label>
-          <div className="flex items-center gap-2">
-            <div className="relative flex-1">
-              <input
-                type="text"
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                placeholder="Start typing a drug name"
-                className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white placeholder:text-white/40 focus:border-[var(--accent)] focus:outline-none"
-              />
-              {suggestions.length > 0 && (
-                <div className="absolute left-0 right-0 top-full z-10 mt-1 max-h-48 overflow-y-auto rounded-2xl border border-white/10 bg-black/90 text-sm text-white">
-                  {suggestions.map((entry) => (
-                    <button
-                      key={`${entry.slug}:${entry.label}`}
-                      type="button"
-                      onClick={() => addMedication(entry.label)}
-                      className="block w-full px-4 py-2 text-left hover:bg-white/10"
-                    >
-                      {entry.label}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-            <button
-              type="button"
-              onClick={() => addMedication(query)}
-              className="rounded-full border border-white/20 px-4 py-2 text-xs uppercase tracking-[0.3em] text-white/70 transition hover:text-white"
-            >
-              Add
-            </button>
-          </div>
-
-          <label className="mt-2 flex flex-col gap-2 text-xs uppercase tracking-[0.35em] text-white/40">
-            Or select medication
-            <div className="flex items-center gap-2">
-              <select
-                value={selectedDropdown}
-                onChange={(event) => setSelectedDropdown(event.target.value)}
-                className="w-full rounded-2xl border border-white/15 bg-black/40 px-4 py-3 text-sm font-medium normal-case tracking-normal text-white focus:border-[var(--accent)] focus:outline-none"
-              >
-                {dropdownMedicationNames.map((name) => (
-                  <option key={name} value={name} className="text-black">
-                    {name}
-                  </option>
-                ))}
-              </select>
-              <button
-                type="button"
-                onClick={() => addMedication(selectedDropdown)}
-                className="rounded-full border border-white/20 px-4 py-2 text-xs uppercase tracking-[0.3em] text-white/70 transition hover:text-white"
-              >
-                Add
-              </button>
-            </div>
+        <div className="flex flex-col gap-4">
+          <label className="flex items-center gap-3 rounded-full border border-white/10 bg-black/30 px-4 py-3 text-sm text-white/80">
+            <span className="text-white/40">Search</span>
+            <input
+              type="search"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder=""
+              className="flex-1 bg-transparent text-white placeholder:text-white/40 focus:outline-none"
+            />
           </label>
+
+          <label className="flex flex-col gap-2 text-xs uppercase tracking-[0.35em] text-white/40">
+            Select medication
+            <select
+              value={selectedDropdown}
+              onChange={(event) => setSelectedDropdown(event.target.value)}
+              className="w-full rounded-2xl border border-white/15 bg-black/40 px-4 py-3 text-base font-medium normal-case tracking-normal text-white focus:border-[var(--accent)] focus:outline-none"
+            >
+              <option value="" className="text-black">
+                Choose a medication...
+              </option>
+              {filteredDropdownNames.map((name) => (
+                <option key={name} value={name} className="text-black">
+                  {name}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <button
+            type="button"
+            disabled={!selectedDropdown}
+            onClick={() => addMedication(selectedDropdown)}
+            className="w-full rounded-full border border-white/20 px-4 py-3 text-sm font-semibold text-white/80 transition hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            Add medication
+          </button>
         </div>
 
         {selected.length > 0 && (

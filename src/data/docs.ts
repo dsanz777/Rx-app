@@ -144,6 +144,66 @@ export const playbookDocs: PlaybookDoc[] = [
     slug: "insomnia-guide",
     file: "insomnia-guide.md",
   },
+  {
+    title: "Community-acquired pneumonia guide",
+    status: "Clinical guide · patient + provider",
+    slug: "community-acquired-pneumonia-guide",
+    file: "community-acquired-pneumonia-guide.md",
+  },
+  {
+    title: "Cellulitis guide",
+    status: "Clinical guide · patient + provider",
+    slug: "cellulitis-guide",
+    file: "cellulitis-guide.md",
+  },
+  {
+    title: "Gout guide",
+    status: "Clinical guide · patient + provider",
+    slug: "gout-guide",
+    file: "gout-guide.md",
+  },
+  {
+    title: "Benign prostatic hyperplasia guide",
+    status: "Clinical guide · patient + provider",
+    slug: "bph-guide",
+    file: "bph-guide.md",
+  },
+  {
+    title: "Chronic constipation guide",
+    status: "Clinical guide · patient + provider",
+    slug: "chronic-constipation-guide",
+    file: "chronic-constipation-guide.md",
+  },
+  {
+    title: "Iron-deficiency anemia guide",
+    status: "Clinical guide · patient + provider",
+    slug: "iron-deficiency-anemia-guide",
+    file: "iron-deficiency-anemia-guide.md",
+  },
+  {
+    title: "Smoking cessation guide",
+    status: "Clinical guide · patient + provider",
+    slug: "smoking-cessation-guide",
+    file: "smoking-cessation-guide.md",
+  },
+  {
+    title: "Osteoporosis guide",
+    status: "Clinical guide · patient + provider",
+    slug: "osteoporosis-guide",
+    file: "osteoporosis-guide.md",
+  },
+  {
+    title: "Obstructive sleep apnea guide",
+    status: "Clinical guide · patient + provider",
+    slug: "obstructive-sleep-apnea-guide",
+    file: "obstructive-sleep-apnea-guide.md",
+  },
+  {
+    title: "Nonalcoholic fatty liver disease guide",
+    status: "Clinical guide · patient + provider",
+    slug: "nafld-guide",
+    file: "nafld-guide.md",
+  },
 ];
 
 export function getPlaybookBySlug(slug: string) {

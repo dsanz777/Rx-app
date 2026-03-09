@@ -3,6 +3,7 @@ import { MedicationLookup } from "@/components/medication-lookup";
 import { AiPharmacistChat } from "@/components/ai-pharmacist-chat";
 import { ConsultForm } from "@/components/consult-form";
 import { InteractionFlags } from "@/components/interaction-flags";
+import { EducationHubSelect } from "@/components/education-hub-select";
 import { getHeroIntel } from "@/lib/brave";
 import { playbookDocs } from "@/data/docs";
 
@@ -272,17 +273,20 @@ export default async function Home() {
 
         <section className="rounded-3xl border border-white/5 bg-white/5 p-6">
           <p className="text-xs uppercase tracking-[0.4em] text-white/50">Education hub</p>
-          <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {playbookDocs.map((item) => (
-              <a
-                key={item.title}
-                href={`/docs/${item.slug}`}
-                className="rounded-2xl border border-white/10 p-4 transition hover:border-[var(--accent)]/70"
-              >
-                <p className="font-medium text-white">{item.title}</p>
-                <p className="text-sm text-white/50">{item.status}</p>
-              </a>
-            ))}
+          <div className="mt-4 grid gap-4 lg:grid-cols-[1.5fr,1fr]">
+            <EducationHubSelect docs={playbookDocs} />
+            <div className="rounded-2xl border border-white/10 bg-black/30 p-5">
+              <p className="text-xs uppercase tracking-[0.35em] text-white/45">What is inside</p>
+              <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-white/75">
+                <li>Disease overview + diagnostic framework</li>
+                <li>Pharmacologic and non-pharmacologic treatment pathways</li>
+                <li>Monitoring targets and escalation triggers</li>
+                <li>Patient counseling points for adherence and safety</li>
+              </ul>
+              <p className="mt-4 text-xs text-white/50">
+                These guides are educational support and should be adapted to patient-specific clinical judgment.
+              </p>
+            </div>
           </div>
         </section>
 
