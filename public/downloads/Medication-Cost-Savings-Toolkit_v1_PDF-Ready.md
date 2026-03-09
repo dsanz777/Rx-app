@@ -67,33 +67,33 @@ Reduce medication cost barriers with practical workflows your team can use this 
 
 > **Use note:** This table supports operational triage. Final therapy decisions must be made by licensed clinicians.
 
-| # | High-Cost Class (Examples) | Practical Lower-Cost Pathways (context-dependent) | NCM Operational Notes |
-|---|---|---|---|
-| 1 | GLP-1 receptor agonists | Metformin, sulfonylureas, TZDs, basal insulin (as appropriate) | PA common; capture trial/failure history |
-| 2 | SGLT2 inhibitors | Metformin-based intensification pathways | Consider comorbidity context |
-| 3 | DPP-4 inhibitors | Metformin/sulfonylurea options | Often non-preferred tiers |
-| 4 | Insulin analog brands | Human insulin pathways (if clinically appropriate) | Reinforce safety + dosing education |
-| 5 | ICS/LABA inhalers | Preferred formulary inhalers + generic ICS pathways | Device education is key |
-| 6 | Triple inhaler therapies | Stepwise component regimens | Step edits common |
-| 7 | LAMA/LABA combinations | Preferred alternatives by plan | Coverage variability high |
-| 8 | DOACs | Warfarin in select appropriate cases | INR logistics may be barrier |
-| 9 | New antiplatelet brands | Generic alternatives where appropriate | Confirm indication/duration |
-| 10 | PCSK9 inhibitors | Max-tolerated statin ± ezetimibe before escalation | Robust PA documentation needed |
-| 11 | Brand omega-3 therapies | Generic pathways based on indication | Verify TG/ASCVD context |
-| 12 | ARNI / selected HF brands | ACEi/ARB evidence-based alternatives where appropriate | Prescriber alignment required |
-| 13 | CGRP migraine preventives | Traditional preventive options first-line | Step therapy often required |
-| 14 | New migraine abortives | Generic triptan/NSAID pathways when suitable | Screen contraindications |
-| 15 | Brand ADHD products | Generic stimulant/non-stimulant options | Supply + formulary shifts |
-| 16 | Atypical antipsychotic brands | Generic antipsychotic alternatives | Monitor metabolic effects |
-| 17 | Brand antidepressants | Generic SSRI/SNRI pathways | Taper/switch plans matter |
-| 18 | Brand sleep agents | Generic + non-pharm options | Fall/cognitive risk review |
-| 19 | Newer AED brands | Established generic AED pathways where appropriate | No abrupt changes |
-| 20 | Brand GERD therapies | Generic PPI/H2 strategies | Step edits common |
-| 21 | Brand constipation meds | Generic osmotic/stimulant protocols first | Prior trial details help |
-| 22 | Biologics (autoimmune/IBD) | Biosimilar/formulary-preferred pathways | Benefit design complexity |
-| 23 | Brand derm topicals | Generic topical alternatives | Quantity limits frequent |
-| 24 | Brand ophthalmic drops | Formulary generic drops | Refill burden impacts adherence |
-| 25 | Brand thyroid/hormonal products | Generic equivalents when clinically appropriate | Product consistency matters |
+| # | High-Cost Class (Examples) | Practical Lower-Cost Pathways (context-dependent) | NCM Operational Notes | Patient Copay Assistance |
+|---|---|---|---|---|
+| 1 | GLP-1 receptor agonists | Metformin, sulfonylureas, TZDs, basal insulin (as appropriate) | PA common; capture trial/failure history | Check manufacturer savings card (commercial only), PAP for uninsured, and Medicare Extra Help screening. |
+| 2 | SGLT2 inhibitors | Metformin-based intensification pathways | Consider comorbidity context | Use brand copay card when eligible; verify plan preferred NDC; screen for PAP/340B options. |
+| 3 | DPP-4 inhibitors | Metformin/sulfonylurea options | Often non-preferred tiers | Run real-time benefit check and coupon eligibility; escalate to PAP if cash cost remains high. |
+| 4 | Insulin analog brands | Human insulin pathways (if clinically appropriate) | Reinforce safety + dosing education | Prioritize $35 insulin cap pathways, manufacturer programs, and pharmacy-level discount adjudication. |
+| 5 | ICS/LABA inhalers | Preferred formulary inhalers + generic ICS pathways | Device education is key | Compare inhaler-specific copay cards and preferred inhaler tiering before switch counseling. |
+| 6 | Triple inhaler therapies | Stepwise component regimens | Step edits common | Use combination-product coupons, then check if separate preferred components lower total out-of-pocket cost. |
+| 7 | LAMA/LABA combinations | Preferred alternatives by plan | Coverage variability high | Check per-product savings card and plan-preferred alternatives in same class to reduce copay. |
+| 8 | DOACs | Warfarin in select appropriate cases | INR logistics may be barrier | Assess DOAC coupon eligibility, 30-day free trial offers, PAP, and foundation support where available. |
+| 9 | New antiplatelet brands | Generic alternatives where appropriate | Confirm indication/duration | Use temporary copay support during high-risk post-ACS period; reassess step-down timing with prescriber. |
+| 10 | PCSK9 inhibitors | Max-tolerated statin ± ezetimibe before escalation | Robust PA documentation needed | Initiate manufacturer copay card at start, use specialty pharmacy support hub, and apply for PAP if denied. |
+| 11 | Brand omega-3 therapies | Generic pathways based on indication | Verify TG/ASCVD context | Check coupons and preferred formulations; avoid non-covered brands when equivalent covered option exists. |
+| 12 | ARNI / selected HF brands | ACEi/ARB evidence-based alternatives where appropriate | Prescriber alignment required | Use HF brand copay programs, PAP referrals, and specialty/mail pharmacy cost optimization. |
+| 13 | CGRP migraine preventives | Traditional preventive options first-line | Step therapy often required | Use bridge programs, copay cards, and manufacturer enrollment portals to avoid treatment gaps. |
+| 14 | New migraine abortives | Generic triptan/NSAID pathways when suitable | Screen contraindications | Activate trial vouchers/copay cards first fill; document response to support continued coverage. |
+| 15 | Brand ADHD products | Generic stimulant/non-stimulant options | Supply + formulary shifts | Check school-year coupon limits, DAW penalties, and preferred generic substitution options. |
+| 16 | Atypical antipsychotic brands | Generic antipsychotic alternatives | Monitor metabolic effects | Use behavioral health PAP pathways and case-manager-assisted enrollment for high-need patients. |
+| 17 | Brand antidepressants | Generic SSRI/SNRI pathways | Taper/switch plans matter | Apply copay cards for transition periods; switch to preferred generics when clinically stable. |
+| 18 | Brand sleep agents | Generic + non-pharm options | Fall/cognitive risk review | Use short-term coupon support only; prioritize lowest-cost safe option for chronic use. |
+| 19 | Newer AED brands | Established generic AED pathways where appropriate | No abrupt changes | If no switch is appropriate, pursue PAP and neurologist support letters for financial hardship review. |
+| 20 | Brand GERD therapies | Generic PPI/H2 strategies | Step edits common | OTC/generic conversion plus FSA/HSA counseling can substantially lower monthly spend. |
+| 21 | Brand constipation meds | Generic osmotic/stimulant protocols first | Prior trial details help | Use first-fill vouchers where available while documenting generic trial outcomes for PA support. |
+| 22 | Biologics (autoimmune/IBD) | Biosimilar/formulary-preferred pathways | Benefit design complexity | Engage manufacturer hubs, copay cards, infusion-center assistance, and independent foundation screening. |
+| 23 | Brand derm topicals | Generic topical alternatives | Quantity limits frequent | Apply derm copay cards and optimize day-supply/quantity to reduce refill frequency and cost spikes. |
+| 24 | Brand ophthalmic drops | Formulary generic drops | Refill burden impacts adherence | Use eye-drop coupon programs and preferred bottle-size/NDC selection to minimize monthly copay. |
+| 25 | Brand thyroid/hormonal products | Generic equivalents when clinically appropriate | Product consistency matters | If brand is required, enroll in manufacturer savings and 90-day supply pricing optimization. |
 
 ### Quick triage prompts
 - Is this primarily **coverage** or **out-of-pocket cost**?
