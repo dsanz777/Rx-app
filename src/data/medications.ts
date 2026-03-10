@@ -558,6 +558,21 @@ const CLASS_SAFETY_DEFAULTS: Array<{ pattern: RegExp; sideEffects: string; monit
   { pattern: /nmda receptor antagonist/i, sideEffects: "Dizziness, headache, confusion, and constipation.", monitoring: "Cognitive/functional trajectory and neuropsychiatric tolerability." },
   { pattern: /partial cholinergic nicotinic agonist/i, sideEffects: "Nausea, insomnia, abnormal dreams, headache, and neuropsychiatric adverse effects.", monitoring: "Smoking cessation progress, mood/behavior changes, and sleep disturbance." },
   { pattern: /biological response modifier/i, sideEffects: "Injection-site reactions, serious infection risk, cytopenias, and immune-mediated adverse effects.", monitoring: "Infection screening/monitoring, CBC/LFT trends, and treatment response by indication." },
+  { pattern: /tnf[-\s]*alpha inhibitor biologic/i, sideEffects: "Injection-site reactions, infection risk (including serious opportunistic infection), headache, and rash.", monitoring: "Baseline/periodic TB and hepatitis screening, CBC/LFT trends, infection symptoms, and disease activity response." },
+  { pattern: /inhaled corticosteroid\/long[-\s]*acting beta[-\s]*2 agonist combination|ics\/laba/i, sideEffects: "Oral candidiasis, dysphonia, tremor, palpitations, and rare paradoxical bronchospasm.", monitoring: "Symptom control, rescue inhaler use, exacerbation frequency, inhaler technique, and oral thrush prevention." },
+  { pattern: /alpha[-\s]*2 adrenergic agonist/i, sideEffects: "Sedation, dizziness, dry mouth, constipation, hypotension, and rebound hypertension if abruptly stopped.", monitoring: "Blood pressure, heart rate, sedation burden, withdrawal/rebound symptoms, and clinical response." },
+  { pattern: /phosphodiesterase[-\s]*5 inhibitor/i, sideEffects: "Headache, flushing, dyspepsia, nasal congestion, visual changes, and hypotension risk.", monitoring: "Clinical response, blood pressure symptoms, vision changes, and strict avoidance of nitrate coadministration." },
+  { pattern: /combined hormonal contraceptive|estrogen\/progestin/i, sideEffects: "Nausea, breast tenderness, headache, breakthrough bleeding, and venous thromboembolism risk.", monitoring: "Blood pressure, bleeding pattern, adherence, migraine/VTE symptoms, and contraindication review over time." },
+  { pattern: /organic nitrate antianginal|nitric oxide donor/i, sideEffects: "Headache, dizziness, flushing, hypotension, and reflex tachycardia.", monitoring: "Angina frequency, blood pressure, orthostatic symptoms, and adherence to nitrate-free interval strategy." },
+  { pattern: /norepinephrine reuptake inhibitor/i, sideEffects: "Insomnia, dry mouth, constipation, palpitations, anxiety, and blood pressure elevation.", monitoring: "Blood pressure, heart rate, appetite/weight changes, mood symptoms, and misuse risk when relevant." },
+  { pattern: /dopamine d2 receptor antagonist prokinetic\/antiemetic/i, sideEffects: "Akathisia, dystonia, sedation, diarrhea, and tardive dyskinesia risk with chronic exposure.", monitoring: "GI symptom response, extrapyramidal symptoms, sedation, and duration limits for long-term use." },
+  { pattern: /anxiolytic \(5[-\s]*ht1a partial agonist\)|buspirone/i, sideEffects: "Dizziness, nausea, headache, nervousness, and restlessness.", monitoring: "Anxiety symptom response, dizziness/sedation, adherence, and interaction risk with serotonergic agents." },
+  { pattern: /noradrenergic and specific serotonergic antidepressant|nassa|mirtazapine/i, sideEffects: "Sedation, increased appetite, weight gain, dry mouth, and constipation.", monitoring: "Mood/sleep response, weight trajectory, daytime sedation, and metabolic effects over time." },
+  { pattern: /prostaglandin analog ophthalmic/i, sideEffects: "Conjunctival hyperemia, eyelash growth, iris/periorbital pigmentation change, and ocular irritation.", monitoring: "Intraocular pressure response, ocular tolerability, and adherence to nightly administration." },
+  { pattern: /beta[-\s]*3 adrenergic agonist \(overactive bladder\)|mirabegron/i, sideEffects: "Hypertension, tachycardia, headache, and urinary retention risk.", monitoring: "Blood pressure, heart rate, urinary symptom control, and post-void symptoms in high-risk patients." },
+  { pattern: /triptan antimigraine|5[-\s]*ht1b\/1d agonist|sumatriptan/i, sideEffects: "Paresthesia, dizziness, fatigue, chest pressure sensations, and nausea.", monitoring: "Headache response, recurrence frequency, cardiovascular warning symptoms, and serotonin syndrome risk with combinations." },
+  { pattern: /partial nicotinic receptor agonist|smoking cessation|varenicline/i, sideEffects: "Nausea, insomnia, abnormal dreams, headache, and potential mood changes.", monitoring: "Quit-progress milestones, neuropsychiatric symptoms, sleep quality, and adherence." },
+  { pattern: /antimalarial\/dmard|hydroxychloroquine/i, sideEffects: "GI upset, rash, retinal toxicity risk (long-term), hypoglycemia, and QT prolongation risk.", monitoring: "Baseline/periodic ophthalmologic exams, CBC/LFT trends, glucose symptoms, and QT-risk co-medications." },
   { pattern: /gaba b agonist/i, sideEffects: "Sedation, dizziness, weakness, and withdrawal risk if abruptly discontinued.", monitoring: "Spasticity response, sedation/fall risk, renal function for dosing, and withdrawal prevention." },
   { pattern: /urinary tract analgesic/i, sideEffects: "Urine discoloration, GI upset, headache, and rare hemolysis/methemoglobinemia risk.", monitoring: "Symptom relief, treatment duration, renal function context, and toxicity symptoms." },
   { pattern: /expectorant/i, sideEffects: "Nausea, vomiting, dizziness, and GI discomfort.", monitoring: "Cough/sputum response and hydration status." },
@@ -701,12 +716,9 @@ function normalizeMedicationRecord(record: MedicationRecord): MedicationRecord {
     normalizedMonitoring && !isPlaceholder(normalizedMonitoring)
       ? normalizedMonitoring
       : fb.monitoring;
-  const canonicalSafety = canonicalizeSafety(
-    canonical.classText,
-    initialSideEffects,
-    initialMonitoring,
-  );
   const override = CONTENT_OVERRIDES[record.slug];
+  const effectiveClass = override?.class ?? canonical.classText;
+  const canonicalSafety = canonicalizeSafety(effectiveClass, initialSideEffects, initialMonitoring);
   const summaryFallback =
     normalizedSummary && !isPlaceholder(normalizedSummary)
       ? normalizedSummary
@@ -718,7 +730,7 @@ function normalizeMedicationRecord(record: MedicationRecord): MedicationRecord {
 
   return {
     ...record,
-    class: override?.class ?? canonical.classText,
+    class: effectiveClass,
     mechanism: override?.mechanism ?? canonical.moaText,
     summary: override?.summary ?? summaryFallback,
     dose: override?.dose ?? doseFallback,
