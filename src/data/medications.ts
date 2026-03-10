@@ -622,7 +622,12 @@ function canonicalizeSafety(classText: string, sideEffects: string, monitoring: 
 
 const CONTENT_OVERRIDES: Record<
   string,
-  Partial<Pick<MedicationRecord, "class" | "mechanism" | "summary" | "dose">>
+  Partial<
+    Pick<
+      MedicationRecord,
+      "name" | "class" | "mechanism" | "summary" | "dose" | "renal" | "sideEffects" | "monitoring" | "pearls" | "tags" | "keywords"
+    >
+  >
 > = {
   digoxin: {
     summary:
@@ -683,6 +688,26 @@ const CONTENT_OVERRIDES: Record<
     dose:
       "Immediate-release adults: 200-400 mg every 4 hours as needed (max 2,400 mg/day). Extended-release: 600-1,200 mg every 12 hours.",
   },
+  adalimumab: {
+    name: "Adalimumab (Humira)",
+    summary:
+      "TNF-alpha inhibitor used for rheumatoid arthritis, psoriatic arthritis, ankylosing spondylitis, Crohn disease, ulcerative colitis, plaque psoriasis, hidradenitis suppurativa, and selected uveitis indications.",
+    dose:
+      "Most adult indications: 40 mg subcutaneously every other week after loading per indication; some patients may require weekly dosing based on response and regimen.",
+    renal:
+      "No clinically meaningful renal dose adjustment is defined; monitor infection risk and overall tolerability based on comorbidity burden.",
+    pearls: [
+      "Screen for latent tuberculosis and hepatitis B before starting therapy and monitor for serious infection during treatment.",
+      "Avoid live vaccines while on treatment; coordinate vaccine updates before initiation when feasible.",
+      "Hold during serious active infection and reassess risk-benefit before restarting.",
+    ],
+    tags: ["Immunology", "Rheumatology", "Gastroenterology", "Dermatology"],
+    keywords: ["adalimumab", "humira", "idacio", "tnf inhibitor", "biologic"],
+  },
+  moxifloxacin: {
+    dose:
+      "Typical adult dosing is 400 mg PO/IV once daily. Duration depends on infection source and severity (commonly 5-14 days).",
+  },
 };
 
 function normalizeMedicationRecord(record: MedicationRecord): MedicationRecord {
@@ -727,17 +752,44 @@ function normalizeMedicationRecord(record: MedicationRecord): MedicationRecord {
     normalizedDose && !isPlaceholder(normalizedDose)
       ? normalizedDose
       : "Use indication-specific labeled dosing and adjust for renal/hepatic function and tolerability.";
+  const renalFallback =
+    normalizedRenal && !isPlaceholder(normalizedRenal)
+      ? normalizedRenal
+      : "No specific renal dose adjustment is clearly defined in standard labeling; individualize based on renal function and clinical context.";
+  const sanitizeToken = (value: string) =>
+    value
+      .replace(/[()]/g, " ")
+      .replace(/\s+/g, " ")
+      .replace(/^[\s,;.-]+|[\s,;.-]+$/g, "")
+      .trim();
+  const normalizedTags = Array.from(
+    new Set(
+      (override?.tags ?? record.tags ?? [])
+        .map((tag) => sanitizeToken(tag))
+        .filter((tag) => tag.length > 2 && !/^and$/i.test(tag)),
+    ),
+  );
+  const normalizedKeywords = Array.from(
+    new Set(
+      (override?.keywords ?? record.keywords ?? [])
+        .map((keyword) => sanitizeToken(keyword.toLowerCase()))
+        .filter((keyword) => keyword.length > 1 && !/^and$/i.test(keyword)),
+    ),
+  );
 
   return {
     ...record,
+    name: override?.name ?? record.name,
     class: effectiveClass,
     mechanism: override?.mechanism ?? canonical.moaText,
     summary: override?.summary ?? summaryFallback,
     dose: override?.dose ?? doseFallback,
-    renal: normalizedRenal,
-    sideEffects: canonicalSafety.sideEffects,
-    monitoring: canonicalSafety.monitoring,
-    pearls,
+    renal: override?.renal ?? renalFallback,
+    sideEffects: override?.sideEffects ?? canonicalSafety.sideEffects,
+    monitoring: override?.monitoring ?? canonicalSafety.monitoring,
+    pearls: override?.pearls ?? pearls,
+    tags: normalizedTags,
+    keywords: normalizedKeywords,
   };
 }
 
