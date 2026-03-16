@@ -1,9 +1,14 @@
 import Image from "next/image";
+import {
+  ActionLink,
+  primaryCtaClassName,
+} from "@/components/action-link";
 import { MedicationLookup } from "@/components/medication-lookup";
 import { AiPharmacistChat } from "@/components/ai-pharmacist-chat";
 import { ConsultForm } from "@/components/consult-form";
 import { InteractionFlags } from "@/components/interaction-flags";
 import { EducationHubSelect } from "@/components/education-hub-select";
+import { NutritionCaseSelector } from "@/components/nutrition-case-selector";
 import { getHeroIntel } from "@/lib/brave";
 import { playbookDocs } from "@/data/docs";
 
@@ -30,67 +35,16 @@ const featureCards = [
   },
 ];
 
-const nutritionProtocols = [
-  {
-    title: "Type 2 Diabetes",
-    focus: "Carb quality, meal consistency, and protein-forward plate design.",
-    actions: [
-      "Use plate method: half non-starchy vegetables, quarter lean protein, quarter high-fiber carbs.",
-      "Target 25–35 g fiber/day and limit sugar-sweetened beverages.",
-      "Pair carb-heavy meals with movement within 30 minutes when feasible.",
-    ],
-  },
-  {
-    title: "Hypertension / HF",
-    focus: "Sodium and volume management with practical shopping substitutions.",
-    actions: [
-      "Limit sodium and avoid excessive intake; for many high-risk patients this is operationalized near 2 g sodium/day when individualized by the care team.",
-      "Prioritize low-sodium proteins and frozen/no-salt-added vegetables.",
-      "Track daily weight and edema symptoms alongside nutrition intake changes.",
-    ],
-  },
-  {
-    title: "CKD Support",
-    focus: "Protein quality and electrolyte-aware dietary planning by CKD stage.",
-    actions: [
-      "Coordinate potassium/phosphorus counseling with latest labs and nephrology plan.",
-      "Use food-first protein quality upgrades before supplement escalation.",
-      "Review OTC products for hidden sodium, potassium, and phosphate additives.",
-    ],
-  },
-  {
-    title: "Weight + Metabolic Risk",
-    focus: "High-satiety meal architecture and behavior-based adherence.",
-    actions: [
-      "Anchor each meal with protein + produce before starch additions.",
-      "Use hunger/fullness scaling to reduce late-night grazing and portion drift.",
-      "Set one measurable 2-week nutrition target and close-loop on progress.",
-    ],
-  },
+const educationGuidelineDomains = [
+  "ADA Standards of Care (diabetes, obesity, CKD risk integration)",
+  "ACC/AHA and ACC/AHA/HFSA guidance (hypertension, CAD, HF, atrial fibrillation)",
+  "KDIGO and KDOQI references (CKD staging, monitoring, renal-safe strategy)",
+  "GOLD and GINA reports (COPD/asthma control with inhaler optimization)",
+  "IDSA-aligned outpatient infection frameworks (sinusitis, CAP, cellulitis, UTI)",
+  "AACE/ACE and obesity-focused guidance (weight-centric pharmacotherapy context)",
 ];
 
-const nutritionGuidelines = [
-  {
-    title: "ADA Standards of Care in Diabetes (current edition)",
-    note: "Nutrition therapy and cardiometabolic risk reduction framework for diabetes care.",
-    url: "https://professional.diabetes.org/standards-of-care",
-  },
-  {
-    title: "KDIGO 2024 CKD Guideline",
-    note: "CKD nutrition considerations, including sodium and protein context by stage/comorbidity.",
-    url: "https://kdigo.org/wp-content/uploads/2024/03/KDIGO-2024-CKD-Guideline.pdf",
-  },
-  {
-    title: "2022 AHA/ACC/HFSA Heart Failure Guideline",
-    note: "Recommends avoiding excessive sodium intake in stage C heart failure.",
-    url: "https://professional.heart.org/-/media/832EA0F4E73948848612F228F7FA2D35.pdf",
-  },
-  {
-    title: "Dietary Guidelines for Americans",
-    note: "National baseline for healthy eating patterns and long-term risk reduction.",
-    url: "https://www.dietaryguidelines.gov/",
-  },
-];
+const featuredEducationGuides = playbookDocs.slice(0, 6);
 
 function formatRelativeTime(dateInput?: string) {
   if (!dateInput) return "Updated now";
@@ -141,41 +95,51 @@ export default async function Home() {
                 Daily pharmacy intel, ACO strategy notes, medication insights - wrapped in a product you can actually share.
               </p>
               <div className="flex flex-wrap gap-3 text-sm">
-                <a
+                <ActionLink
                   href="#snapshot"
-                  className="rounded-full border border-white/20 bg-black/60 px-5 py-3 font-medium text-white transition hover:text-[var(--accent)]"
+                  action="view_todays_brief"
+                  location="hero"
+                  className={primaryCtaClassName}
                 >
                   View Today&apos;s Brief
-                </a>
-                <a
+                </ActionLink>
+                <ActionLink
                   href="#consult"
-                  className="rounded-full border border-white/20 px-5 py-3 font-medium text-white/80 transition hover:text-white"
+                  action="schedule_consult"
+                  location="hero"
+                  className={primaryCtaClassName}
                 >
                   Schedule a Consult
-                </a>
-                <a
+                </ActionLink>
+                <ActionLink
                   href="/toolkits/medication-cost-savings"
-                  className="rounded-full border border-white/20 px-5 py-3 font-medium text-white/80 transition hover:text-white"
+                  action="open_cost_savings_toolkit"
+                  location="hero"
+                  className={primaryCtaClassName}
                 >
                   Cost-Savings Toolkit
-                </a>
-                <a
+                </ActionLink>
+                <ActionLink
                   href="/pricing"
-                  className="rounded-full border border-white/20 px-5 py-3 font-medium text-white/80 transition hover:text-white"
+                  action="open_pricing"
+                  location="hero"
+                  className={primaryCtaClassName}
                 >
                   Licensing & Pricing
-                </a>
+                </ActionLink>
               </div>
               <div className="grid gap-4 lg:grid-cols-3">
                 {featureCards.map((card) => (
-                  <a
+                  <ActionLink
                     key={card.title}
                     href={card.href}
+                    action={`feature_card_${card.title.toLowerCase().replace(/[^a-z0-9]+/g, "_")}`}
+                    location="hero_feature_cards"
                     className="rounded-3xl border border-white/5 bg-gradient-to-b from-white/5 to-white/0 p-6 transition hover:border-[var(--accent)]/60"
                   >
                     <h2 className="text-2xl font-semibold text-white">{card.title}</h2>
                     <p className="mt-3 text-sm text-white/70">{card.body}</p>
-                  </a>
+                  </ActionLink>
                 ))}
               </div>
             </div>
@@ -195,9 +159,11 @@ export default async function Home() {
                     </p>
                     <div className="mt-3 space-y-3">
                       {section.headlines.map((headline) => (
-                        <a
+                        <ActionLink
                           key={`${section.label}-${headline.title}`}
                           href={headline.url}
+                          action="open_snapshot_headline"
+                          location={`snapshot_${section.label.toLowerCase().replace(/[^a-z0-9]+/g, "_")}`}
                           target="_blank"
                           rel="noreferrer noopener"
                           className="block rounded-xl border border-white/5 bg-white/5 px-3 py-2 transition hover:border-[var(--accent)]/50"
@@ -206,7 +172,7 @@ export default async function Home() {
                           <p className="text-xs text-white/50">
                             {headline.source} · {formatRelativeTime(headline.publishedAt)}
                           </p>
-                        </a>
+                        </ActionLink>
                       ))}
                     </div>
                   </div>
@@ -218,47 +184,21 @@ export default async function Home() {
 
         <section id="medication-lookup" className="grid gap-8 lg:grid-cols-[2fr,1fr]">
           <MedicationLookup />
-          <InteractionFlags />
+          <div id="interaction-radar">
+            <InteractionFlags />
+          </div>
         </section>
 
         <section id="nutrition" className="rounded-3xl border border-white/5 bg-white/5 p-6">
           <p className="text-xs uppercase tracking-[0.4em] text-white/50">Nutrition strategy</p>
           <p className="mt-2 text-sm text-white/70">
-            This section is guideline-aligned for education and care-management workflows; final plans should be individualized by licensed clinicians.
+            Built for care-management workflows: choose a case, apply structured targets, and escalate by clinical response.
           </p>
-          <div className="mt-4 grid gap-4 lg:grid-cols-2">
-            {nutritionProtocols.map((item) => (
-              <div key={item.title} className="rounded-2xl border border-white/10 bg-black/30 p-5">
-                <p className="text-sm uppercase tracking-[0.25em] text-white/50">{item.title}</p>
-                <p className="mt-2 text-sm text-white/75">{item.focus}</p>
-                <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-white/80">
-                  {item.actions.map((action) => (
-                    <li key={action}>{action}</li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-          <div className="mt-5 rounded-2xl border border-white/10 bg-black/30 p-4">
-            <p className="text-xs uppercase tracking-[0.35em] text-white/45">Guideline references</p>
-            <ul className="mt-3 space-y-2 text-sm text-white/75">
-              {nutritionGuidelines.map((guideline) => (
-                <li key={guideline.title}>
-                  <a
-                    href={guideline.url}
-                    target="_blank"
-                    rel="noreferrer noopener"
-                    className="font-medium text-white underline decoration-dotted underline-offset-4 hover:text-[var(--accent)]"
-                  >
-                    {guideline.title}
-                  </a>
-                  <span className="text-white/65"> — {guideline.note}</span>
-                </li>
-              ))}
-            </ul>
+          <div className="mt-4">
+            <NutritionCaseSelector />
           </div>
           <p className="mt-4 text-xs text-white/50">
-            Nutrition guidance is educational support and should be individualized by licensed clinicians for each patient.
+            Education-only guidance. Final plans must be individualized by licensed clinicians using patient-specific labs, comorbidities, and medication context.
           </p>
         </section>
 
@@ -273,19 +213,53 @@ export default async function Home() {
 
         <section className="rounded-3xl border border-white/5 bg-white/5 p-6">
           <p className="text-xs uppercase tracking-[0.4em] text-white/50">Education hub</p>
+          <p className="mt-2 text-sm text-white/70">
+            Expanded clinical depth with guideline-anchored framing for diagnosis, treatment sequencing, monitoring, and escalation decisions.
+          </p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {featuredEducationGuides.map((doc) => (
+              <ActionLink
+                key={doc.slug}
+                href={`/docs/${doc.slug}`}
+                action="open_featured_education_guide"
+                location="education_hub_featured"
+                className="rounded-full border border-white/15 px-3 py-1 text-[11px] uppercase tracking-[0.22em] text-white/70 transition hover:text-white"
+              >
+                {doc.title}
+              </ActionLink>
+            ))}
+            <ActionLink
+              href="/docs"
+              action="browse_all_guides"
+              location="education_hub"
+              className="rounded-full border border-white/20 bg-white/5 px-3 py-1 text-[11px] uppercase tracking-[0.22em] text-white/80 transition hover:text-white"
+            >
+              Browse all guides
+            </ActionLink>
+          </div>
           <div className="mt-4 grid gap-4 lg:grid-cols-[1.5fr,1fr]">
             <EducationHubSelect docs={playbookDocs} />
-            <div className="rounded-2xl border border-white/10 bg-black/30 p-5">
-              <p className="text-xs uppercase tracking-[0.35em] text-white/45">What is inside</p>
-              <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-white/75">
-                <li>Disease overview + diagnostic framework</li>
-                <li>Pharmacologic and non-pharmacologic treatment pathways</li>
-                <li>Monitoring targets and escalation triggers</li>
-                <li>Patient counseling points for adherence and safety</li>
-              </ul>
-              <p className="mt-4 text-xs text-white/50">
-                These guides are educational support and should be adapted to patient-specific clinical judgment.
-              </p>
+            <div className="space-y-4">
+              <div className="rounded-2xl border border-white/10 bg-black/30 p-5">
+                <p className="text-xs uppercase tracking-[0.35em] text-white/45">What is inside</p>
+                <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-white/75">
+                  <li>Guideline-based disease framing + diagnostic criteria checkpoints</li>
+                  <li>First-line and add-on treatment pathways with clinical rationale</li>
+                  <li>Monitoring cadence, target metrics, and escalation/de-escalation triggers</li>
+                  <li>Safety red flags, contraindication reminders, and patient counseling pearls</li>
+                </ul>
+              </div>
+              <div className="rounded-2xl border border-white/10 bg-black/30 p-5">
+                <p className="text-xs uppercase tracking-[0.35em] text-white/45">Guideline domains referenced</p>
+                <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-white/75">
+                  {educationGuidelineDomains.map((domain) => (
+                    <li key={domain}>{domain}</li>
+                  ))}
+                </ul>
+                <p className="mt-4 text-xs text-white/50">
+                  Inline citations are included in the playbooks to support nurse education and pharmacist review workflows.
+                </p>
+              </div>
             </div>
           </div>
         </section>
@@ -314,12 +288,14 @@ export default async function Home() {
                 <li>Pilot with 1-2 practices and capture outcomes</li>
                 <li>Publish a case study to support enterprise sales</li>
               </ol>
-              <a
+              <ActionLink
                 href="/pricing"
-                className="mt-4 inline-block rounded-full border border-white/20 px-4 py-2 text-xs uppercase tracking-[0.25em] text-white/80 transition hover:text-white"
+                action="discuss_licensing"
+                location="licensing_panel"
+                className={`${primaryCtaClassName} mt-4 inline-block px-4 py-2 text-xs uppercase tracking-[0.25em]`}
               >
                 Discuss Licensing
-              </a>
+              </ActionLink>
             </div>
           </div>
         </section>
@@ -328,9 +304,9 @@ export default async function Home() {
           <p>© {new Date().getFullYear()} Derek Sanz.</p>
           <p className="mt-1">Concierge pharmacy + daily brief for value-based operators.</p>
           <div className="mt-3 flex flex-wrap gap-4 text-xs uppercase tracking-[0.25em] text-white/50">
-            <a href="/pricing" className="transition hover:text-white">Pricing</a>
-            <a href="/privacy" className="transition hover:text-white">Privacy</a>
-            <a href="/terms" className="transition hover:text-white">Terms</a>
+            <ActionLink href="/pricing" action="open_pricing" location="footer" className="transition hover:text-white">Pricing</ActionLink>
+            <ActionLink href="/privacy" action="open_privacy" location="footer" className="transition hover:text-white">Privacy</ActionLink>
+            <ActionLink href="/terms" action="open_terms" location="footer" className="transition hover:text-white">Terms</ActionLink>
           </div>
         </footer>
       </div>

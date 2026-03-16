@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import type { PlaybookDoc } from "@/data/docs";
@@ -11,16 +12,22 @@ interface EducationHubSelectProps {
 
 export function EducationHubSelect({ docs }: EducationHubSelectProps) {
   const router = useRouter();
-  const [selectedSlug, setSelectedSlug] = useState<string>("");
+  const [selectedSlug, setSelectedSlug] = useState<string>(docs[0]?.slug ?? "");
 
   const selectedDoc = useMemo(
     () => docs.find((doc) => doc.slug === selectedSlug),
     [docs, selectedSlug],
   );
 
-  const openGuide = () => {
-    if (!selectedSlug) return;
-    router.push(`/docs/${selectedSlug}`);
+  const openGuide = (slug = selectedSlug) => {
+    if (!slug) return;
+    router.push(`/docs/${slug}`);
+  };
+
+  const openRandomGuide = () => {
+    if (!docs.length) return;
+    const randomDoc = docs[Math.floor(Math.random() * docs.length)];
+    openGuide(randomDoc.slug);
   };
 
   return (
@@ -32,9 +39,6 @@ export function EducationHubSelect({ docs }: EducationHubSelectProps) {
           onChange={(event) => setSelectedSlug(event.target.value)}
           className="w-full rounded-2xl border border-white/15 bg-black/40 px-4 py-3 text-sm text-white focus:border-[var(--accent)] focus:outline-none"
         >
-          <option value="" className="text-black">
-            Select a disease guide...
-          </option>
           {docs.map((doc) => (
             <option key={doc.slug} value={doc.slug} className="text-black">
               {doc.title}
@@ -43,12 +47,26 @@ export function EducationHubSelect({ docs }: EducationHubSelectProps) {
         </select>
         <button
           type="button"
-          onClick={openGuide}
-          disabled={!selectedSlug}
-          className="rounded-full border border-white/20 px-5 py-3 text-xs font-semibold uppercase tracking-[0.3em] text-white/80 transition hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+          onClick={() => openGuide()}
+          className="rounded-full border border-white/20 px-5 py-3 text-xs font-semibold uppercase tracking-[0.3em] text-white/80 transition hover:text-white"
         >
           Open Guide
         </button>
+      </div>
+      <div className="mt-3 flex flex-wrap gap-2">
+        <button
+          type="button"
+          onClick={openRandomGuide}
+          className="rounded-full border border-white/20 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-white/70 transition hover:text-white"
+        >
+          Surprise me
+        </button>
+        <Link
+          href="/docs"
+          className="rounded-full border border-white/20 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-white/70 transition hover:text-white"
+        >
+          Full library
+        </Link>
       </div>
       <p className="mt-3 text-sm text-white/70">
         {selectedDoc

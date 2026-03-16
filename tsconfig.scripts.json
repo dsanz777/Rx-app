@@ -6,5 +6,18 @@
     "allowImportingTsExtensions": false,
     "resolveJsonModule": true,
     "outDir": "./.ts-temp"
-  }
+  },
+  "include": [
+    "next-env.d.ts",
+    "scripts/**/*.ts",
+    "src/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "apps/mobile",
+    ".next",
+    "tailwind.config.ts",
+    "next.config.ts",
+    "src/**/*.tsx"
+  ]
 }

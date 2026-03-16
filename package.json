@@ -10,6 +10,8 @@
     "lint": "eslint",
     "harness:rx": "ts-node --project tsconfig.scripts.json scripts/harness-rx.ts",
     "harness:all": "npm run harness:rx && npm run build",
+    "meds:batch": "ts-node --project tsconfig.scripts.json scripts/generate-med-expansion-batch.ts",
+    "meds:import-batch": "ts-node --project tsconfig.scripts.json scripts/import-med-expansion-batch.ts && ts-node --project tsconfig.scripts.json scripts/normalize-meds-generated.ts",
     "hooks:install": "bash scripts/setup-git-hooks.sh",
     "ingest:ddinter": "ts-node --project tsconfig.scripts.json scripts/fetch-ddinter.ts"
   },

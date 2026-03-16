@@ -1,9 +1,9 @@
 import fs from "fs/promises";
 import path from "path";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
+import { ActionLink } from "@/components/action-link";
 import { renderMarkdown } from "@/lib/markdown";
 
 interface DownloadDoc {
@@ -90,15 +90,34 @@ export default async function DownloadPage({ params }: DownloadPageProps) {
   return (
     <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
       <div className="mx-auto flex max-w-4xl flex-col gap-8 px-6 py-16">
-        <Link href="/toolkits/medication-cost-savings" className="text-sm text-white/60 transition hover:text-[var(--accent)]">
+        <ActionLink
+          href="/toolkits/medication-cost-savings"
+          action="back_to_toolkit"
+          location="download_detail_header"
+          className="text-sm text-white/60 transition hover:text-[var(--accent)]"
+        >
           ← Back to toolkit
-        </Link>
+        </ActionLink>
         <header className="space-y-4 rounded-3xl border border-white/10 bg-black/40 p-6 shadow-[0_20px_120px_rgba(0,0,0,0.6)]">
           <p className="text-xs uppercase tracking-[0.4em] text-white/50">Download</p>
           <h1 className="text-4xl font-semibold text-white">{title}</h1>
           <p className="text-sm text-white/60">{doc.file}</p>
         </header>
         <article className="doc-content rounded-3xl border border-white/5 bg-black/30 p-6" dangerouslySetInnerHTML={{ __html: html }} />
+        <section className="flex flex-wrap items-center gap-4 rounded-3xl border border-white/10 bg-black/40 p-6">
+          <div>
+            <p className="text-xs uppercase tracking-[0.4em] text-white/50">Keep reading</p>
+            <p className="mt-1 text-sm text-white/80">Explore all playbook guides covering real-world medication decisions.</p>
+          </div>
+          <ActionLink
+            href="/docs"
+            action="browse_guides"
+            location="download_detail_bottom_cta"
+            className="ml-auto rounded-full border border-white/20 px-5 py-3 font-medium text-white/80 transition hover:text-white"
+          >
+            Browse all guides →
+          </ActionLink>
+        </section>
       </div>
     </main>
   );

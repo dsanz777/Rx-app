@@ -5,6 +5,7 @@ import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 type ChatMessage = {
   role: "user" | "assistant";
   content: string;
+  meta?: string;
 };
 
 const initialMessages: ChatMessage[] = [
@@ -49,14 +50,20 @@ export function AiPharmacistChat() {
         throw new Error("Chat request failed");
       }
 
-      const data = (await response.json()) as { reply?: string };
+      const data = (await response.json()) as { reply?: string; matchedMedications?: string[] };
       const replyContent = data.reply?.trim();
 
       if (!replyContent) {
         throw new Error("Empty reply");
       }
 
-      setMessages((prev) => [...prev, { role: "assistant", content: replyContent }]);
+      const groundedMeds = (data.matchedMedications ?? []).filter(Boolean);
+      const meta =
+        groundedMeds.length > 0
+          ? `Grounded against local medication data: ${groundedMeds.join(", ")}`
+          : undefined;
+
+      setMessages((prev) => [...prev, { role: "assistant", content: replyContent, meta }]);
     } catch (err) {
       console.error(err);
       setError("ChatGPT is unavailable right now. Try again in a moment.");
@@ -75,6 +82,7 @@ export function AiPharmacistChat() {
             {message.role === "assistant" ? "Rx Chat" : "You"}
           </p>
           <p className="mt-2 text-sm text-white/80">{message.content}</p>
+          {message.meta ? <p className="mt-2 text-[11px] text-white/45">{message.meta}</p> : null}
         </div>
       )),
     [messages],

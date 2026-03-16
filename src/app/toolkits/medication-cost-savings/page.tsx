@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { ActionLink } from "@/components/action-link";
 
 const sections = [
   {
@@ -40,9 +40,14 @@ export default function MedicationCostSavingsToolkitPage() {
   return (
     <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
       <div className="mx-auto flex max-w-6xl flex-col gap-8 px-6 py-16">
-        <Link href="/" className="text-sm text-white/60 transition hover:text-[var(--accent)]">
+        <ActionLink
+          href="/"
+          action="back_to_brief"
+          location="toolkit_page_header"
+          className="text-sm text-white/60 transition hover:text-[var(--accent)]"
+        >
           ← Back to brief
-        </Link>
+        </ActionLink>
 
         <section className="rounded-3xl border border-white/10 bg-black/40 p-6 shadow-[0_20px_120px_rgba(0,0,0,0.6)]">
           <p className="text-xs uppercase tracking-[0.4em] text-white/50">Founding Edition</p>
@@ -53,12 +58,14 @@ export default function MedicationCostSavingsToolkitPage() {
           </p>
 
           <div className="mt-6 flex flex-wrap gap-3 text-sm">
-            <a
+            <ActionLink
               href="/downloads/medication-cost-savings-toolkit-v1"
+              action="download_toolkit_v1"
+              location="toolkit_hero"
               className="rounded-full border border-white/20 bg-black/60 px-5 py-3 font-medium text-white transition hover:text-[var(--accent)]"
             >
               Download Toolkit (v1)
-            </a>
+            </ActionLink>
             <span className="rounded-full border border-emerald-300/30 bg-emerald-400/10 px-5 py-3 font-medium text-emerald-200">
               Founding price: $49 (first 25)
             </span>
@@ -118,6 +125,29 @@ export default function MedicationCostSavingsToolkitPage() {
           <p className="mt-2 text-sm text-white/80">
             This toolkit is for educational and operational support purposes only. It does not provide patient-specific medical advice, diagnosis, or treatment recommendations.
           </p>
+        </section>
+
+        <section className="grid gap-4 md:grid-cols-2">
+          <ActionLink
+            href="/docs"
+            action="browse_guides_from_toolkit"
+            location="toolkit_bottom_cta"
+            className="rounded-3xl border border-white/10 bg-black/40 p-6 transition hover:border-[var(--accent)]/60"
+          >
+            <p className="text-xs uppercase tracking-[0.4em] text-white/50">Deep dive</p>
+            <h3 className="mt-2 text-xl font-semibold text-white">Browse Clinical Guides →</h3>
+            <p className="mt-2 text-sm text-white/70">37 playbooks covering disease staging, treatment pathways, and escalation triggers.</p>
+          </ActionLink>
+          <ActionLink
+            href="/#consult"
+            action="schedule_consult_from_toolkit"
+            location="toolkit_bottom_cta"
+            className="rounded-3xl border border-white/10 bg-black/40 p-6 transition hover:border-[var(--accent)]/60"
+          >
+            <p className="text-xs uppercase tracking-[0.4em] text-white/50">Implementation</p>
+            <h3 className="mt-2 text-xl font-semibold text-white">Schedule a Walkthrough →</h3>
+            <p className="mt-2 text-sm text-white/70">45-min session to set up cost-barrier triage workflows with your care team.</p>
+          </ActionLink>
         </section>
       </div>
     </main>

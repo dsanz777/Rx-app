@@ -6,6 +6,7 @@ export type CanonicalMedication = {
 };
 
 const synonyms = new Map<string, CanonicalMedication>();
+const synonymEntries: Array<[string, CanonicalMedication]> = [];
 
 export function normalizeMedicationName(value: string): string {
   return value
@@ -56,6 +57,10 @@ function expandTokens(value: string) {
       expandTokens(token).forEach((child) => registerSynonym(child, canonical));
     });
   });
+
+  synonymEntries.push(
+    ...Array.from(synonyms.entries()).sort((a, b) => b[0].length - a[0].length || a[0].localeCompare(b[0])),
+  );
 })();
 
 export function resolveMedication(value: string): CanonicalMedication | null {
@@ -66,4 +71,21 @@ export function resolveMedication(value: string): CanonicalMedication | null {
 
 export function allSynonyms() {
   return new Map(synonyms);
+}
+
+export function extractMedicationsFromText(value: string) {
+  const normalized = normalizeMedicationName(value);
+  if (!normalized) return [];
+
+  const haystack = ` ${normalized} `;
+  const matches = new Map<string, CanonicalMedication>();
+
+  for (const [synonym, medication] of synonymEntries) {
+    if (!synonym || synonym.length < 3) continue;
+    if (haystack.includes(` ${synonym} `)) {
+      matches.set(medication.slug, medication);
+    }
+  }
+
+  return Array.from(matches.values());
 }

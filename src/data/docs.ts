@@ -204,6 +204,24 @@ export const playbookDocs: PlaybookDoc[] = [
     slug: "nafld-guide",
     file: "nafld-guide.md",
   },
+  {
+    title: "Prediabetes guide",
+    status: "Clinical guide · patient + provider",
+    slug: "prediabetes-guide",
+    file: "prediabetes-guide.md",
+  },
+  {
+    title: "Peripheral artery disease guide",
+    status: "Clinical guide · patient + provider",
+    slug: "peripheral-artery-disease-guide",
+    file: "peripheral-artery-disease-guide.md",
+  },
+  {
+    title: "Allergic rhinitis guide",
+    status: "Clinical guide · patient + provider",
+    slug: "allergic-rhinitis-guide",
+    file: "allergic-rhinitis-guide.md",
+  },
 ];
 
 export function getPlaybookBySlug(slug: string) {

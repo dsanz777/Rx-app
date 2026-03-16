@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { ActionLink } from "@/components/action-link";
 import { LicensingForm } from "@/components/licensing-form";
 
 export const metadata: Metadata = {
@@ -47,9 +47,14 @@ export default function PricingPage() {
   return (
     <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
       <div className="mx-auto flex max-w-6xl flex-col gap-8 px-6 py-16">
-        <Link href="/" className="text-sm text-white/60 transition hover:text-[var(--accent)]">
+        <ActionLink
+          href="/"
+          action="back_to_brief"
+          location="pricing_header"
+          className="text-sm text-white/60 transition hover:text-[var(--accent)]"
+        >
           ← Back to brief
-        </Link>
+        </ActionLink>
 
         <section className="rounded-3xl border border-white/10 bg-black/40 p-6 shadow-[0_20px_120px_rgba(0,0,0,0.6)]">
           <p className="text-xs uppercase tracking-[0.4em] text-white/50">Licensing</p>
@@ -101,8 +106,8 @@ export default function PricingPage() {
 
         <footer className="rounded-3xl border border-white/10 bg-black/30 p-4 text-xs uppercase tracking-[0.25em] text-white/50">
           <div className="flex flex-wrap gap-4">
-            <Link href="/privacy" className="transition hover:text-white">Privacy</Link>
-            <Link href="/terms" className="transition hover:text-white">Terms</Link>
+            <ActionLink href="/privacy" action="open_privacy" location="pricing_footer" className="transition hover:text-white">Privacy</ActionLink>
+            <ActionLink href="/terms" action="open_terms" location="pricing_footer" className="transition hover:text-white">Terms</ActionLink>
           </div>
         </footer>
       </div>

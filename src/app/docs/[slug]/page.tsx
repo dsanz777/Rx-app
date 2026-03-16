@@ -1,10 +1,10 @@
 import fs from "fs/promises";
 import path from "path";
 import Image from "next/image";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
+import { ActionLink } from "@/components/action-link";
 import { playbookDocs, getPlaybookBySlug } from "@/data/docs";
 import { addGuidelineLinks } from "@/lib/guideline-links";
 import { renderMarkdown } from "@/lib/markdown";
@@ -53,12 +53,14 @@ export default async function DocPage({ params }: DocPageProps) {
   return (
     <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
       <div className="mx-auto flex max-w-4xl flex-col gap-8 px-6 py-16">
-        <Link
+        <ActionLink
           href="/"
+          action="back_to_brief"
+          location="doc_detail_header"
           className="text-sm text-white/60 transition hover:text-[var(--accent)]"
         >
           ← Back to brief
-        </Link>
+        </ActionLink>
         <header className="space-y-4 rounded-3xl border border-white/10 bg-black/40 p-6 shadow-[0_20px_120px_rgba(0,0,0,0.6)]">
           <div className="flex items-center gap-4">
             <Image
@@ -80,6 +82,20 @@ export default async function DocPage({ params }: DocPageProps) {
           </div>
         </header>
         <article className="doc-content rounded-3xl border border-white/5 bg-black/30 p-6" dangerouslySetInnerHTML={{ __html: html }} />
+        <section className="flex flex-wrap items-center gap-4 rounded-3xl border border-white/10 bg-black/40 p-6">
+          <div>
+            <p className="text-xs uppercase tracking-[0.4em] text-white/50">Next step</p>
+            <p className="mt-1 text-sm text-white/80">Grab the full medication cost-savings toolkit with ready-to-use checklists and guides.</p>
+          </div>
+          <ActionLink
+            href="/toolkits/medication-cost-savings"
+            action="view_toolkit"
+            location="doc_detail_bottom_cta"
+            className="ml-auto rounded-full border border-[var(--accent)]/40 bg-[var(--accent)]/10 px-5 py-3 font-medium text-[var(--accent)] transition hover:bg-[var(--accent)]/20"
+          >
+            Download the toolkit →
+          </ActionLink>
+        </section>
       </div>
     </main>
   );

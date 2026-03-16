@@ -6,20 +6,6 @@
 
 ---
 
-## Brand + Style Guide (for final PDF formatting)
-
-- **Primary color:** Navy `#0B1F3A`
-- **Accent color:** Teal `#0FA3B1`
-- **Secondary accent:** Green `#2E7D32`
-- **Body text:** Charcoal `#1F2937`
-- **Font pairing:**
-  - Headers: Montserrat Semibold (or Arial Bold fallback)
-  - Body: Inter / Calibri / Arial
-- **Visual tone:** Clean clinical ops, practical, no fluff
-- **Footer (all pages):** `Medication Cost-Savings Toolkit v1.0 | Derek Sanz, PharmD | For education + operations support only`
-
----
-
 ## Cover Page
 
 ## Medication Cost-Savings Toolkit

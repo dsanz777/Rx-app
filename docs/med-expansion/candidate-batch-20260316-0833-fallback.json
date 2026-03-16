@@ -1,0 +1,368 @@
+{
+  "generatedAt": "2026-03-16T12:33:29.068Z",
+  "source": "OpenFDA generic_name frequency list",
+  "existingRuntimeCount": 270,
+  "batchSize": 60,
+  "candidates": [
+    {
+      "generic": "DIPHENHYDRAMINE HCL",
+      "slug": "diphenhydramine-hcl",
+      "count": 339,
+      "reason": "high-frequency OpenFDA generic name not present in current dataset"
+    },
+    {
+      "generic": "PYRITHIONE ZINC",
+      "slug": "pyrithione-zinc",
+      "count": 285,
+      "reason": "high-frequency OpenFDA generic name not present in current dataset"
+    },
+    {
+      "generic": "LIDOCAINE HYDROCHLORIDE",
+      "slug": "lidocaine-hydrochloride",
+      "count": 283,
+      "reason": "high-frequency OpenFDA generic name not present in current dataset"
+    },
+    {
+      "generic": "SODIUM MONOFLUOROPHOSPHATE",
+      "slug": "sodium-monofluorophosphate",
+      "count": 152,
+      "reason": "high-frequency OpenFDA generic name not present in current dataset"
+    },
+    {
+      "generic": "HYDROCODONE BITARTRATE AND ACETAMINOPHEN",
+      "slug": "hydrocodone-bitartrate-and-acetaminophen",
+      "count": 146,
+      "reason": "high-frequency OpenFDA generic name not present in current dataset"
+    },
+    {
+      "generic": "DEXTROMETHORPHAN HBR",
+      "slug": "dextromethorphan-hbr",
+      "count": 135,
+      "reason": "high-frequency OpenFDA generic name not present in current dataset"
+    },
+    {
+      "generic": "HYDROGEN PEROXIDE",
+      "slug": "hydrogen-peroxide",
+      "count": 126,
+      "reason": "high-frequency OpenFDA generic name not present in current dataset"
+    },
+    {
+      "generic": "GLYCOPYRROLATE",
+      "slug": "glycopyrrolate",
+      "count": 117,
+      "reason": "high-frequency OpenFDA generic name not present in current dataset"
+    },
+    {
+      "generic": "DICYCLOMINE HYDROCHLORIDE",
+      "slug": "dicyclomine-hydrochloride",
+      "count": 113,
+      "reason": "high-frequency OpenFDA generic name not present in current dataset"
+    },
+    {
+      "generic": "BISACODYL",
+      "slug": "bisacodyl",
+      "count": 112,
+      "reason": "high-frequency OpenFDA generic name not present in current dataset"
+    },
+    {
+      "generic": "PHENTERMINE HYDROCHLORIDE",
+      "slug": "phentermine-hydrochloride",
+      "count": 112,
+      "reason": "high-frequency OpenFDA generic name not present in current dataset"
+    },
+    {
+      "generic": "AMITRIPTYLINE HYDROCHLORIDE",
+      "slug": "amitriptyline-hydrochloride",
+      "count": 111,
+      "reason": "high-frequency OpenFDA generic name not present in current dataset"
+    },
+    {
+      "generic": "SENNOSIDES",
+      "slug": "sennosides",
+      "count": 111,
+      "reason": "high-frequency OpenFDA generic name not present in current dataset"
+    },
+    {
+      "generic": "CLONIDINE HYDROCHLORIDE",
+      "slug": "clonidine-hydrochloride",
+      "count": 103,
+      "reason": "high-frequency OpenFDA generic name not present in current dataset"
+    },
+    {
+      "generic": "FEXOFENADINE HYDROCHLORIDE",
+      "slug": "fexofenadine-hydrochloride",
+      "count": 103,
+      "reason": "high-frequency OpenFDA generic name not present in current dataset"
+    },
+    {
+      "generic": "PHENYLEPHRINE HYDROCHLORIDE",
+      "slug": "phenylephrine-hydrochloride",
+      "count": 103,
+      "reason": "high-frequency OpenFDA generic name not present in current dataset"
+    },
+    {
+      "generic": "CLOBETASOL PROPIONATE",
+      "slug": "clobetasol-propionate",
+      "count": 95,
+      "reason": "high-frequency OpenFDA generic name not present in current dataset"
+    },
+    {
+      "generic": "PROMETHAZINE HYDROCHLORIDE",
+      "slug": "promethazine-hydrochloride",
+      "count": 93,
+      "reason": "high-frequency OpenFDA generic name not present in current dataset"
+    },
+    {
+      "generic": "POLYETHYLENE GLYCOL 3350",
+      "slug": "polyethylene-glycol-3350",
+      "count": 92,
+      "reason": "high-frequency OpenFDA generic name not present in current dataset"
+    },
+    {
+      "generic": "DOXEPIN HYDROCHLORIDE",
+      "slug": "doxepin-hydrochloride",
+      "count": 91,
+      "reason": "high-frequency OpenFDA generic name not present in current dataset"
+    },
+    {
+      "generic": "VERAPAMIL HYDROCHLORIDE",
+      "slug": "verapamil-hydrochloride",
+      "count": 90,
+      "reason": "high-frequency OpenFDA generic name not present in current dataset"
+    },
+    {
+      "generic": "MAGNESIUM HYDROXIDE",
+      "slug": "magnesium-hydroxide",
+      "count": 88,
+      "reason": "high-frequency OpenFDA generic name not present in current dataset"
+    },
+    {
+      "generic": "METHYLPHENIDATE HYDROCHLORIDE",
+      "slug": "methylphenidate-hydrochloride",
+      "count": 88,
+      "reason": "high-frequency OpenFDA generic name not present in current dataset"
+    },
+    {
+      "generic": "SULFAMETHOXAZOLE AND TRIMETHOPRIM",
+      "slug": "sulfamethoxazole-and-trimethoprim",
+      "count": 88,
+      "reason": "high-frequency OpenFDA generic name not present in current dataset"
+    },
+    {
+      "generic": "SULFUR",
+      "slug": "sulfur",
+      "count": 88,
+      "reason": "high-frequency OpenFDA generic name not present in current dataset"
+    },
+    {
+      "generic": "CETIRIZINE HCL",
+      "slug": "cetirizine-hcl",
+      "count": 87,
+      "reason": "high-frequency OpenFDA generic name not present in current dataset"
+    },
+    {
+      "generic": "ARNICA MONTANA",
+      "slug": "arnica-montana",
+      "count": 86,
+      "reason": "high-frequency OpenFDA generic name not present in current dataset"
+    },
+    {
+      "generic": "DEXTROMETHORPHAN HYDROBROMIDE",
+      "slug": "dextromethorphan-hydrobromide",
+      "count": 84,
+      "reason": "high-frequency OpenFDA generic name not present in current dataset"
+    },
+    {
+      "generic": "SODIUM BICARBONATE",
+      "slug": "sodium-bicarbonate",
+      "count": 80,
+      "reason": "high-frequency OpenFDA generic name not present in current dataset"
+    },
+    {
+      "generic": "PHENOBARBITAL",
+      "slug": "phenobarbital",
+      "count": 79,
+      "reason": "high-frequency OpenFDA generic name not present in current dataset"
+    },
+    {
+      "generic": "NALOXONE HYDROCHLORIDE",
+      "slug": "naloxone-hydrochloride",
+      "count": 78,
+      "reason": "high-frequency OpenFDA generic name not present in current dataset"
+    },
+    {
+      "generic": "ONDANSETRON HYDROCHLORIDE",
+      "slug": "ondansetron-hydrochloride",
+      "count": 78,
+      "reason": "high-frequency OpenFDA generic name not present in current dataset"
+    },
+    {
+      "generic": "CLINDAMYCIN PHOSPHATE",
+      "slug": "clindamycin-phosphate",
+      "count": 77,
+      "reason": "high-frequency OpenFDA generic name not present in current dataset"
+    },
+    {
+      "generic": "INDOMETHACIN",
+      "slug": "indomethacin",
+      "count": 77,
+      "reason": "high-frequency OpenFDA generic name not present in current dataset"
+    },
+    {
+      "generic": "MORPHINE SULFATE",
+      "slug": "morphine-sulfate",
+      "count": 77,
+      "reason": "high-frequency OpenFDA generic name not present in current dataset"
+    },
+    {
+      "generic": "CHLORHEXIDINE GLUCONATE",
+      "slug": "chlorhexidine-gluconate",
+      "count": 76,
+      "reason": "high-frequency OpenFDA generic name not present in current dataset"
+    },
+    {
+      "generic": "EPINEPHRINE",
+      "slug": "epinephrine",
+      "count": 76,
+      "reason": "high-frequency OpenFDA generic name not present in current dataset"
+    },
+    {
+      "generic": "LOSARTAN POTASSIUM AND HYDROCHLOROTHIAZIDE",
+      "slug": "losartan-potassium-and-hydrochlorothiazide",
+      "count": 76,
+      "reason": "high-frequency OpenFDA generic name not present in current dataset"
+    },
+    {
+      "generic": "OXYCODONE AND ACETAMINOPHEN",
+      "slug": "oxycodone-and-acetaminophen",
+      "count": 76,
+      "reason": "high-frequency OpenFDA generic name not present in current dataset"
+    },
+    {
+      "generic": "PHENAZOPYRIDINE HYDROCHLORIDE",
+      "slug": "phenazopyridine-hydrochloride",
+      "count": 76,
+      "reason": "high-frequency OpenFDA generic name not present in current dataset"
+    },
+    {
+      "generic": "ETODOLAC",
+      "slug": "etodolac",
+      "count": 75,
+      "reason": "high-frequency OpenFDA generic name not present in current dataset"
+    },
+    {
+      "generic": "CHLORTHALIDONE",
+      "slug": "chlorthalidone",
+      "count": 74,
+      "reason": "high-frequency OpenFDA generic name not present in current dataset"
+    },
+    {
+      "generic": "CLINDAMYCIN HYDROCHLORIDE",
+      "slug": "clindamycin-hydrochloride",
+      "count": 74,
+      "reason": "high-frequency OpenFDA generic name not present in current dataset"
+    },
+    {
+      "generic": "LEVOCETIRIZINE DIHYDROCHLORIDE",
+      "slug": "levocetirizine-dihydrochloride",
+      "count": 74,
+      "reason": "high-frequency OpenFDA generic name not present in current dataset"
+    },
+    {
+      "generic": "OXYBUTYNIN CHLORIDE",
+      "slug": "oxybutynin-chloride",
+      "count": 74,
+      "reason": "high-frequency OpenFDA generic name not present in current dataset"
+    },
+    {
+      "generic": "FEXOFENADINE HCL",
+      "slug": "fexofenadine-hcl",
+      "count": 73,
+      "reason": "high-frequency OpenFDA generic name not present in current dataset"
+    },
+    {
+      "generic": "VANCOMYCIN HYDROCHLORIDE",
+      "slug": "vancomycin-hydrochloride",
+      "count": 73,
+      "reason": "high-frequency OpenFDA generic name not present in current dataset"
+    },
+    {
+      "generic": "ENALAPRIL MALEATE",
+      "slug": "enalapril-maleate",
+      "count": 72,
+      "reason": "high-frequency OpenFDA generic name not present in current dataset"
+    },
+    {
+      "generic": "LIDOCAINE HCL",
+      "slug": "lidocaine-hcl",
+      "count": 72,
+      "reason": "high-frequency OpenFDA generic name not present in current dataset"
+    },
+    {
+      "generic": "MINOCYCLINE HYDROCHLORIDE",
+      "slug": "minocycline-hydrochloride",
+      "count": 72,
+      "reason": "high-frequency OpenFDA generic name not present in current dataset"
+    },
+    {
+      "generic": "DOCOSANOL",
+      "slug": "docosanol",
+      "count": 71,
+      "reason": "high-frequency OpenFDA generic name not present in current dataset"
+    },
+    {
+      "generic": "LACOSAMIDE",
+      "slug": "lacosamide",
+      "count": 70,
+      "reason": "high-frequency OpenFDA generic name not present in current dataset"
+    },
+    {
+      "generic": "MECLIZINE HYDROCHLORIDE",
+      "slug": "meclizine-hydrochloride",
+      "count": 70,
+      "reason": "high-frequency OpenFDA generic name not present in current dataset"
+    },
+    {
+      "generic": "CIPROFLOXACIN HYDROCHLORIDE",
+      "slug": "ciprofloxacin-hydrochloride",
+      "count": 68,
+      "reason": "high-frequency OpenFDA generic name not present in current dataset"
+    },
+    {
+      "generic": "OXYCODONE HYDROCHLORIDE",
+      "slug": "oxycodone-hydrochloride",
+      "count": 68,
+      "reason": "high-frequency OpenFDA generic name not present in current dataset"
+    },
+    {
+      "generic": "DEXAMETHASONE SODIUM PHOSPHATE",
+      "slug": "dexamethasone-sodium-phosphate",
+      "count": 67,
+      "reason": "high-frequency OpenFDA generic name not present in current dataset"
+    },
+    {
+      "generic": "PROGESTERONE",
+      "slug": "progesterone",
+      "count": 67,
+      "reason": "high-frequency OpenFDA generic name not present in current dataset"
+    },
+    {
+      "generic": "BUMETANIDE",
+      "slug": "bumetanide",
+      "count": 66,
+      "reason": "high-frequency OpenFDA generic name not present in current dataset"
+    },
+    {
+      "generic": "HYDROXYZINE PAMOATE",
+      "slug": "hydroxyzine-pamoate",
+      "count": 66,
+      "reason": "high-frequency OpenFDA generic name not present in current dataset"
+    },
+    {
+      "generic": "OLMESARTAN MEDOXOMIL",
+      "slug": "olmesartan-medoxomil",
+      "count": 66,
+      "reason": "high-frequency OpenFDA generic name not present in current dataset"
+    }
+  ]
+}

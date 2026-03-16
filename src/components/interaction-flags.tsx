@@ -11,7 +11,7 @@ type InteractionResult = {
 };
 
 type SourceMeta = {
-  name: string;
+  source: string;
   license?: string;
   website?: string;
   generatedAt?: string;
@@ -112,7 +112,7 @@ export function InteractionFlags() {
     <Panel id="interaction-radar">
       <SectionEyebrow>Interaction flags</SectionEyebrow>
       <p className="mt-2 text-sm text-white/70">
-        Results are AI-generated and not medical advice. Consult a healthcare professional.
+        Results use the local DDInter dataset and are not medical advice. Confirm against patient-specific factors.
       </p>
       <form onSubmit={handleSubmit} className="mt-4 space-y-4">
         <div className="flex flex-col gap-4">
@@ -211,10 +211,10 @@ export function InteractionFlags() {
                   rel="noreferrer"
                   className="underline decoration-dotted underline-offset-4 hover:text-white/60"
                 >
-                  {sourceMeta.name}
+                  {sourceMeta.source}
                 </a>
               ) : (
-                sourceMeta.name
+                sourceMeta.source
               )}
               {sourceMeta.license ? <span> ({sourceMeta.license})</span> : null}
               {sourceMeta.generatedAt ? (
