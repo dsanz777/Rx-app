@@ -58,6 +58,20 @@ function expandTokens(value: string) {
     });
   });
 
+  // Exact canonical names should win over broader keyword collisions.
+  medicationDataset.forEach((record) => {
+    const canonical = { slug: record.slug, name: record.name };
+    const base = record.name.replace(/\(.*?\)/g, " ").replace(/\s+/g, " ").trim();
+    const slugName = record.slug.replace(/-/g, " ");
+
+    [record.name, base, slugName].forEach((candidate) => {
+      const normalized = normalizeMedicationName(candidate);
+      if (normalized) {
+        synonyms.set(normalized, canonical);
+      }
+    });
+  });
+
   synonymEntries.push(
     ...Array.from(synonyms.entries()).sort((a, b) => b[0].length - a[0].length || a[0].localeCompare(b[0])),
   );
