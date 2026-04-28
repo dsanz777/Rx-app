@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getCuratedInteractionForPair, getCuratedInteractionSourceMeta } from "@/data/curated-interactions";
 import {
   getDdinterSeverityGuidance,
   getDdinterSourceMeta,
@@ -41,14 +42,28 @@ export async function POST(request: Request) {
       );
     }
 
+    const canonicalMeds = resolved.map((entry) => entry.match!);
     const deduped = new Map<string, { severity: string; description: string; drugs: string[] }>();
+    const curated = canonicalMeds.flatMap((first, index) =>
+      canonicalMeds.slice(index + 1).flatMap((second) => {
+        const match = getCuratedInteractionForPair(first.slug, second.slug);
+        if (!match) return [];
+        return [
+          {
+            severity: match.severity,
+            description: match.description,
+            drugs: [first.name, second.name],
+          },
+        ];
+      }),
+    );
 
-    const interactions = getInteractionsForMedications(resolved.map((entry) => entry.match!))
+    const interactions = [...curated, ...getInteractionsForMedications(canonicalMeds)
       .map((entry) => ({
         severity: entry.severity,
         description: getDdinterSeverityGuidance(entry.severity),
         drugs: entry.drugs,
-      }))
+      }))]
       .sort((a, b) => (severityRank[a.severity] ?? 99) - (severityRank[b.severity] ?? 99))
       .filter((entry) => {
         const key = pairKey(entry.drugs);
@@ -68,7 +83,10 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       interactions,
-      source: getDdinterSourceMeta(),
+      source: {
+        ...getDdinterSourceMeta(),
+        curated: getCuratedInteractionSourceMeta(),
+      },
     });
   } catch (error) {
     console.error("Interaction API error", error);
