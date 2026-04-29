@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, KeyboardEvent, useMemo, useState } from "react";
 import { medicationDataset } from "@/data/medications";
 import { DetailCard, Panel, SectionEyebrow } from "@/components/ui/surfaces";
 
@@ -53,6 +53,8 @@ export function InteractionFlags() {
     return dropdownMedicationNames.filter((name) => normalize(name).includes(normalizedQuery));
   }, [query]);
 
+  const quickResults = useMemo(() => filteredDropdownNames.slice(0, 8), [filteredDropdownNames]);
+
   const addMedication = (name: string) => {
     const trimmed = name.trim();
     if (!trimmed) return;
@@ -72,6 +74,7 @@ export function InteractionFlags() {
 
     setSelected((prev) => [...prev, matchedLabel]);
     setSelectedDropdown("");
+    setQuery("");
   };
 
   const removeMedication = (name: string) => {
@@ -108,6 +111,14 @@ export function InteractionFlags() {
     }
   };
 
+  const handleSearchKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key !== "Enter") return;
+    if (!quickResults.length) return;
+
+    event.preventDefault();
+    addMedication(quickResults[0]);
+  };
+
   return (
     <Panel id="interaction-radar">
       <SectionEyebrow>Interaction flags</SectionEyebrow>
@@ -122,10 +133,32 @@ export function InteractionFlags() {
               type="search"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
+              onKeyDown={handleSearchKeyDown}
               placeholder=""
               className="flex-1 bg-transparent text-white placeholder:text-white/40 focus:outline-none"
             />
           </label>
+
+          {query ? (
+            <div className="rounded-2xl border border-white/10 bg-black/30 p-2">
+              {quickResults.length ? (
+                <div className="flex flex-wrap gap-2">
+                  {quickResults.map((name) => (
+                    <button
+                      key={name}
+                      type="button"
+                      onClick={() => addMedication(name)}
+                      className="rounded-full border border-white/15 px-3 py-2 text-left text-sm text-white/80 transition hover:border-[var(--accent)] hover:text-white"
+                    >
+                      {name}
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <p className="px-2 py-1 text-sm text-white/55">No medications match that search.</p>
+              )}
+            </div>
+          ) : null}
 
           <label className="flex flex-col gap-2 text-xs uppercase tracking-[0.35em] text-white/40">
             Select medication
